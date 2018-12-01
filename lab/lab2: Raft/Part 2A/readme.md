@@ -53,7 +53,8 @@ loop:
 
 可以看到，这两个时间驱动的活动涉及到两个定时任务：      
 1. 心跳周期超时检测     
-2. 选举超时(心跳超时)检测       
+2. 选举超时(心跳超时)检测      
+
 并且它们是状态互斥的，第一个是`Leader`行为，第二个是`Follower`行为(心跳超时检测)或`Candidate`行为(选举超时检测)。   
 根据[Raft Structure Advice]的关于管理选举超时的建议：   
 > 也许最简单的计划(plan)是在Raft结构中维护一个变量，其包含了该对等点最后一次从领导者那里听到消息的时间(the last time at which the peer heard from the leader)，并且让选举超时goroutine(the election timeout goroutine)定期进行检查，看看自那时起的时间(the time since then)是否大于超时周期。   
@@ -62,7 +63,8 @@ loop:
 因为我们的程序结构包含了三个长期运行的goroutine：   
 1. heartbeatPeriodTick      
 2. electionTimeoutTick      
-3. eventLoop    
+3. eventLoop   
+
 前2个goroutine分别执行上述的两个定时检测任务，第3个goroutine用于循环检测前2个goroutine的超时channel，并执行对应的时间驱动事件。     
 还有一个问题就是heartbeatPeriodTick和electionTimeoutTick是状态互斥的，也就是说对于同一个peer，任一时间要么是leader，要么不是leader，所以只能执行其中一个goroutine，而另一个goroutine由于是长期运行的，还不能退出，所以只能休眠等待，可以通过条件变量实现休眠等待，和对应状态切换时的唤醒操。    
 
@@ -72,31 +74,31 @@ electionTimeoutTick实现：
 // 或给予candidate的RequestVote RPC请求的投票的时间(latestHeardTIme)以来的时间差，是否超过了
 // 选举超时时间(electionTimeout)。若超时，则往electionTimeoutChan写入数据，以表明可以发起选举。
 func (rf *Raft) electionTimeoutTick() {
-	for {
-		// 如果peer是leader，则不需要选举超时检查器，所以等待nonLeaderCond条件变量
-		if term, isLeader := rf.GetState(); isLeader {
-			rf.mu.Lock()
-			rf.nonLeaderCond.Wait()
-			rf.mu.Unlock()
-		} else {
-			rf.mu.Lock()
-			elapseTime := time.Now().UnixNano() - rf.latestHeardTime
-			if int(elapseTime/int64(time.Millisecond)) >= rf.electionTimeout {
-				DPrintf("[ElectionTimeoutTick]: Id %d Term %d State %s\t||\ttimeout," +
-						" convert to Candidate\n", rf.me, term, state2name(rf.state))
-				// 选举超时，peer的状态只能是follower或candidate两种状态。
-				// 若是follower需要转换为candidate发起选举； 若是candidate
-				// 需要发起一次新的选举。---所以这里设置状态为Candidate---。
-				// 这里不需要设置state为Candidate，因为总是要发起选举，在选举
-				// 里面设置state比较合适，这样不分散。
-				//rf.state = Candidate
-				rf.electionTimeoutChan <- true
-			}
-			rf.mu.Unlock()
-			// 休眠1ms，作为tick的时间间隔
-			time.Sleep(time.Millisecond)
-		}
-	}
+    for {
+        // 如果peer是leader，则不需要选举超时检查器，所以等待nonLeaderCond条件变量
+        if term, isLeader := rf.GetState(); isLeader {
+            rf.mu.Lock()
+            rf.nonLeaderCond.Wait()
+            rf.mu.Unlock()
+        } else {
+            rf.mu.Lock()
+            elapseTime := time.Now().UnixNano() - rf.latestHeardTime
+            if int(elapseTime/int64(time.Millisecond)) >= rf.electionTimeout {
+                DPrintf("[ElectionTimeoutTick]: Id %d Term %d State %s\t||\ttimeout," +
+                        " convert to Candidate\n", rf.me, term, state2name(rf.state))
+                // 选举超时，peer的状态只能是follower或candidate两种状态。
+                // 若是follower需要转换为candidate发起选举； 若是candidate
+                // 需要发起一次新的选举。---所以这里设置状态为Candidate---。
+                // 这里不需要设置state为Candidate，因为总是要发起选举，在选举
+                // 里面设置state比较合适，这样不分散。
+                //rf.state = Candidate
+                rf.electionTimeoutChan <- true
+            }
+            rf.mu.Unlock()
+            // 休眠1ms，作为tick的时间间隔
+            time.Sleep(time.Millisecond)
+        }
+    }
 }
 ```
 
@@ -106,22 +108,22 @@ eventLoop实现：
 // 消息处理主循环，处理两种互斥的时间驱动的时间到期：
 // 1) 心跳周期到期； 2) 选举超时。
 func (rf *Raft) eventLoop() {
-	for {
-		select {
-		case <- rf.electionTimeoutChan:
-			rf.mu.Lock()
-			DPrintf("[EventLoop]: Id %d Term %d State %s\t||\telection timeout, start an election\n",
-									rf.me, rf.currentTerm, state2name(rf.state))
-			rf.mu.Unlock()
-			go rf.startElection()
-		case <- rf.heartbeatPeriodChan:
-			rf.mu.Lock()
-			DPrintf("[EventLoop]: Id %d Term %d State %s\t||\theartbeat period occurs, broadcast heartbeats\n",
-								rf.me, rf.currentTerm, state2name(rf.state))
-			rf.mu.Unlock()
-			go rf.broadcastHeartbeat()
-		}
-	}
+    for {
+        select {
+        case <- rf.electionTimeoutChan:
+            rf.mu.Lock()
+            DPrintf("[EventLoop]: Id %d Term %d State %s\t||\telection timeout, start an election\n",
+                                    rf.me, rf.currentTerm, state2name(rf.state))
+            rf.mu.Unlock()
+            go rf.startElection()
+        case <- rf.heartbeatPeriodChan:
+            rf.mu.Lock()
+            DPrintf("[EventLoop]: Id %d Term %d State %s\t||\theartbeat period occurs, broadcast heartbeats\n",
+                                rf.me, rf.currentTerm, state2name(rf.state))
+            rf.mu.Unlock()
+            go rf.broadcastHeartbeat()
+        }
+    }
 }
 ```
 
