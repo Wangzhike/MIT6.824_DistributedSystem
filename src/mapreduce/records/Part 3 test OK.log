@@ -1,0 +1,154 @@
+/var/tmp/824-1000/mr24352-master: Starting Map/Reduce task test
+Schedule: 20 mapPhase tasks (10 I/Os)
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #0 on file 824-mrinput-0.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #1 on file 824-mrinput-1.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #1 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #2 on file 824-mrinput-2.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #0 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #3 on file 824-mrinput-3.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #2 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #4 on file 824-mrinput-4.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #3 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #5 on file 824-mrinput-5.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #4 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #6 on file 824-mrinput-6.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #5 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #7 on file 824-mrinput-7.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #6 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #8 on file 824-mrinput-8.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #7 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #9 on file 824-mrinput-9.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #8 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #10 on file 824-mrinput-10.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #9 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #11 on file 824-mrinput-11.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #10 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #12 on file 824-mrinput-12.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #11 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #13 on file 824-mrinput-13.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #12 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #14 on file 824-mrinput-14.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #13 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #15 on file 824-mrinput-15.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #14 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #16 on file 824-mrinput-16.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #15 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #17 on file 824-mrinput-17.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #16 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #18 on file 824-mrinput-18.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #18 done
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #19 on file 824-mrinput-19.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #17 done
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #19 done
+Schedule: mapPhase done
+Schedule: 10 reducePhase tasks (20 I/Os)
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #0 on file 824-mrinput-0.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #1 on file 824-mrinput-1.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #0 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #2 on file 824-mrinput-2.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #1 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #3 on file 824-mrinput-3.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #2 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #4 on file 824-mrinput-4.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #3 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #5 on file 824-mrinput-5.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #4 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #6 on file 824-mrinput-6.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #5 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #7 on file 824-mrinput-7.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #6 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #8 on file 824-mrinput-8.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #7 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #9 on file 824-mrinput-9.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #8 done
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #9 done
+Schedule: reducePhase done
+Merge: read mrtmp.test-res-0
+Merge: read mrtmp.test-res-1
+Merge: read mrtmp.test-res-2
+Merge: read mrtmp.test-res-3
+Merge: read mrtmp.test-res-4
+Merge: read mrtmp.test-res-5
+Merge: read mrtmp.test-res-6
+Merge: read mrtmp.test-res-7
+Merge: read mrtmp.test-res-8
+Merge: read mrtmp.test-res-9
+/var/tmp/824-1000/mr24352-master: Map/Reduce task completed
+/var/tmp/824-1000/mr24352-master: Starting Map/Reduce task test
+Schedule: 20 mapPhase tasks (10 I/Os)
+/var/tmp/824-1000/mr24352-worker1: given mapPhase task #0 on file 824-mrinput-0.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #1 on file 824-mrinput-1.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #1 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #2 on file 824-mrinput-2.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #2 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #3 on file 824-mrinput-3.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #3 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #4 on file 824-mrinput-4.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #4 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #5 on file 824-mrinput-5.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #5 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #6 on file 824-mrinput-6.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #6 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #7 on file 824-mrinput-7.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #7 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #8 on file 824-mrinput-8.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #8 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #9 on file 824-mrinput-9.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #9 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #10 on file 824-mrinput-10.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #10 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #11 on file 824-mrinput-11.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #11 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #12 on file 824-mrinput-12.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #12 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #13 on file 824-mrinput-13.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #13 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #14 on file 824-mrinput-14.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #14 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #15 on file 824-mrinput-15.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #15 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #16 on file 824-mrinput-16.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #16 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #17 on file 824-mrinput-17.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #17 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #18 on file 824-mrinput-18.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #18 done
+/var/tmp/824-1000/mr24352-worker0: given mapPhase task #19 on file 824-mrinput-19.txt (nios: 10)
+/var/tmp/824-1000/mr24352-worker0: mapPhase task #19 done
+/var/tmp/824-1000/mr24352-worker1: mapPhase task #0 done
+Schedule: mapPhase done
+Schedule: 10 reducePhase tasks (20 I/Os)
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #1 on file 824-mrinput-1.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #0 on file 824-mrinput-0.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #0 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #2 on file 824-mrinput-2.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #1 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #3 on file 824-mrinput-3.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #3 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #4 on file 824-mrinput-4.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #2 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #5 on file 824-mrinput-5.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #4 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #6 on file 824-mrinput-6.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #5 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #7 on file 824-mrinput-7.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #6 done
+/var/tmp/824-1000/mr24352-worker1: given reducePhase task #8 on file 824-mrinput-8.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #7 done
+/var/tmp/824-1000/mr24352-worker0: given reducePhase task #9 on file 824-mrinput-9.txt (nios: 20)
+/var/tmp/824-1000/mr24352-worker1: reducePhase task #8 done
+/var/tmp/824-1000/mr24352-worker0: reducePhase task #9 done
+Schedule: reducePhase done
+Merge: read mrtmp.test-res-0
+Merge: read mrtmp.test-res-1
+Merge: read mrtmp.test-res-2
+Merge: read mrtmp.test-res-3
+Merge: read mrtmp.test-res-4
+Merge: read mrtmp.test-res-5
+Merge: read mrtmp.test-res-6
+Merge: read mrtmp.test-res-7
+Merge: read mrtmp.test-res-8
+Merge: read mrtmp.test-res-9
+/var/tmp/824-1000/mr24352-master: Map/Reduce task completed
+PASS
+ok  	mapreduce	4.055s

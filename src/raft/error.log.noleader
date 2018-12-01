@@ -1,0 +1,841 @@
+Test (2A): initial election ...
+[ElectionTimeoutTick]: Id 2 Term 0 State Follower	||	timeout, convert to Candidate
+[EventLoop]: Id 2 Term 0 State Candidate	||	election timeout, start an election
+[StartElection]: Id 2 Term 1 State Candidate	||	start an election
+[StartElection]: Id 2 Term 1 State Candidate	||	issue RequestVote RPC to peer 0
+[StartElection]: Id 2 Term 1 State Candidate	||	issue RequestVote RPC to peer 1
+[RequestVote]: Id 1 Term 0 State Follower	||	args's term 1 is larger
+[RequestVote]: Id 1 Term 1 State Follower	||	grant vote for candidate 2
+[StartElection]: Id 2 Term 1 State Candidate	||	peer 1 grants vote
+[StartElection]: Id 2 Term 1 State Candidate	||	nVotes 2
+[StartElection]: Id 2 Term 1 State Candidate	||	win election with nVotes 2
+[Broadcast]: Id 2 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[ElectionTimeoutTick]: Id 0 Term 0 State Follower	||	timeout, convert to Candidate
+[EventLoop]: Id 0 Term 0 State Candidate	||	election timeout, start an election
+[Broadcast]: Id 2 Term 1 State Leader	||	issue heartbeat to peer 0 with nextIndex 1
+[StartElection]: Id 0 Term 1 State Candidate	||	start an election
+[StartElection]: Id 0 Term 1 State Candidate	||	issue RequestVote RPC to peer 1
+[StartElection]: Id 0 Term 1 State Candidate	||	issue RequestVote RPC to peer 2
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[StartElection]: Id 2 Term 1 State Leader	||	RequestVote is rejected by peer 0
+[RequestVote]: Id 1 Term 1 State Follower	||	grant vote for candidate 0
+[AppendEntries]: Id 0 Term 1 State Candidate	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[StartElection]: Id 0 Term 1 State Candidate	||	peer 1 grants vote
+[StartElection]: Id 0 Term 1 State Candidate	||	nVotes 2
+[StartElection]: Id 0 Term 1 State Candidate	||	win election with nVotes 2
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+[HeartbeatPeriodTick]: Id 0 Term 1 State Leader	||	heartbeat period elapsed, issue heartbeat
+[EventLoop]: Id 0 Term 1 State Leader	||	heartbeat period occurs, broadcast heartbeats
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 2 with nextIndex 1
+[Broadcast]: Id 0 Term 1 State Leader	||	issue heartbeat to peer 1 with nextIndex 1
+[AppendEntries]: Id 1 Term 1 State Follower	||	consistency check pass with args's prevLogIndex 0 args's prevLogTerm 0
+[Broadcast]: Id 0 Term 1 State Leader	||	send heartbeat to peer 1 success
+signal: interrupt
+FAIL	raft	14.031s
