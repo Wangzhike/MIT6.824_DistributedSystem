@@ -32,7 +32,7 @@ rf.GetState() (term, isLeader)
 // should send an ApplyMsg to the service (or tester).
 type ApplyMsg
 ```
-使用Raft算法的服务，调用`Make()`接口来创建一个Raft对等点(a Raft perr)。调用`Start()`接口要求Raft启动一次处理以便将命令追加到复制日志。Raft使用课程提供的labrpc包来交换RPC，它以Go语言的rpc库为模型，但是内部使用Go channel而不是sockets。以RequestVote RPC为例，使用`sendRequestVote()`接口发送RPC，当接收到RequestVote RPC请求时，自动调用`RequestVote()`接口处理传入的RPC。根据[Lec2: Infrastructure: RPC and threads]()的讲解，我们知道Go的RPC库会创建一个新的goroutine处理传入的RequestVote请求，也就是说创建一个新的goroutine来执行`RequestVote`。所以为Raft结构注册好RPC处理函数后，在RPC请求到达时，会自动调用该处理函数。除此之外，没有更多的信息。    
+使用Raft算法的服务，调用`Make()`接口来创建一个Raft对等点(a Raft perr)。调用`Start()`接口要求Raft启动一次处理以便将命令追加到复制日志。Raft使用课程提供的labrpc包来交换RPC，它以Go语言的rpc库为模型，但是内部使用Go channel而不是sockets。以RequestVote RPC为例，使用`sendRequestVote()`接口发送RPC，当接收到RequestVote RPC请求时，自动调用`RequestVote()`接口处理传入的RPC。根据[Lec2: Infrastructure: RPC and threads](https://pdos.csail.mit.edu/6.824/notes/l-rpc.txt)的讲解，我们知道Go的RPC库会创建一个新的goroutine处理传入的RequestVote请求，也就是说创建一个新的goroutine来执行`RequestVote`。所以为Raft结构注册好RPC处理函数后，在RPC请求到达时，会自动调用该处理函数。除此之外，没有更多的信息。    
 
 ### 1.1 状态机      
 根据论文[extended Raft](https://github.com/Wangzhike/MIT6.824_DistributedSystem/blob/master/lab/lab2:%20Raft/%5B2014%2CA%5Draft-extended.pdf)中图4给出的状态机转移图，我的第一个想法是将每个状态组织成一个独立的goroutine，以此为入口点，每个状态里面可能会再派生出几个goroutine，比如`Follower`状态只需要周期性检测选举超时(也就是心跳超时)，而`Candidate`在选举超时后还需要发起一次选举。     
