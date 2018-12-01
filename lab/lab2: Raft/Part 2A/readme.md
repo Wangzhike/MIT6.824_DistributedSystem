@@ -9,6 +9,13 @@
 
 这里我们分析领第一个子问题的实现思路。  
 
+1. [程序结构](#1-程序结构)
+    1. [状态机](#11-状态机)
+    2. [时间驱动的(time-driven)、长期运行的(long-running)的goroutine](#12-时间驱动的time-driven长期运行的long-running的goroutine)
+2. [并行发送RPC结构](#2-并行发送RPC结构)
+3. [RPC请求或回复中的任期超时处理](#3-RPC请求或回复中的任期超时处理)
+
+
 ## 1. 程序结构      
 Lab2的实验要求是Raft实现必须支持以下接口，测试代码和(最终的)你的key/value服务器将使用这些接口：     
 ```go
@@ -46,7 +53,7 @@ loop:
 但新的状态可能需要马上切换，比如`Leader`状态，需要立即向其他peers发送心跳，以防止其超时发起无用的选举。这是先等待上一个状态的所有goroutien结束，可能会出现问题。    
 自己的第一个实现基本无法通过测试，只有偶尔可以通过第一个不存在网络故障的正常选举测试。  
 
-### 1.2 时间驱动的(time-driven)、长期运行的(long-runing)的goroutine     
+### 1.2 时间驱动的(time-driven)、长期运行的(long-running)的goroutine     
 总结[状态机方案](#11-状态机)的问题：状态切换时杀掉上一个状态的goroutien同时创建新状态的goroutine，由于状态切换可能很频繁，这种做法效率低效，同时切换期间杀掉并等待上一个状态的所有goroutine退出，存在很大的风险。       
 仔细分析不难发现，在这些状态的所有goroutine里，其实存在功能相同的goroutine，它们随着状态切换被频繁创建和杀掉，并且它们是长期运行的周期性任务，这样做也存在问题。正如[Raft Structure Advice](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)所述：     
 > Raft实例有两种时间驱动的(time-driven)活动：(1) 领导者必须发送心跳，(2) 以及其他(对等点)自收到领导者消息以来(since hearing from the leader)，如果太长时间过去(if too much time has passed)，开始一次选举。最好使用一个专门的(dedicated)、长期运行的(long-running)goroutine来驱动这两者中的每个活动，而不是将多个活动组合到单个goroutine中。        
