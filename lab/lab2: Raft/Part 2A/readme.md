@@ -129,5 +129,160 @@ func (rf *Raft) eventLoop() {
 
 有了程序主结构后，剩下的就是实现两个对应的驱动事件：选举和广播心跳，以及对应的RequestVote RPC和AppendEntires RPC的发送和处理函数。      
 
-## 2. 并行发送RPC组织   
+## 2. 并行发送RPC结构   
+为了提高性能，需要并行发送RPC。可以迭代peers，为每一个peer单独创建一个goroutine发送RPC。[Raft Structure Adivce](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)建议：     
+> 在同一个goroutine里进行RPC回复(reply)处理是最简单的，而不是通过(over)channel发送回复消息。    
+
+所以，为每个peer创建一个gorotuine同步发送RPC并进行RPC回复处理。另外，为了保证由于RPC发送阻塞而阻塞的goroutine不会阻塞RequestVote RPC的投票统计，需要时每个发送RequestVote RPC的goroutine中实时统计获得的选票数，达到多数后就立即切换为`Leader`状态，并立即发送一次心跳，组织其他peer因选举超时而发起新的选举。而不能在等待所有发送goroutine处理结束后再统计票数，这样阻塞的goroutine，会阻塞领导者的产生。      
+还有一个问题就是最好等待所有发送RPC的goroutine的退出，因为选举和广播心跳操作不能阻塞，必须立即返回。所以，为了等待发送goroutine退出，需要在并行发送RPC的外部再创建一个goroutine，用于迭代peers并行发送RPC和等待这些发送RPC的goroutine结束。     
+发起选举的代码实现如下：    
+```go
+// 发起一次选举，在一个新的goroutine中并行给其他每个peers发送RequestVote RPC，并等待
+// 所有发起RequestVote的goroutine结束。不能等所有发送RPC的goroutine结束后再统计投票，
+// 选出leader，因为这样一个peer阻塞不回复RPC，就会造成无法选出leader。所以需要在发送RPC
+// 的goroutine中及时统计投票结果，达到多数投票，就立即切换到leader状态。
+func (rf *Raft) startElection() {
+    rf.mu.Lock()
+    // 再次设置下状态
+    rf.switchTo(Candidate)
+    // start election:
+    // 	1. increase currentTerm
+    rf.currentTerm += 1
+    //  2. vote for self
+    rf.voteFor = rf.me
+    nVotes := 1
+    // 	3. reset election timeout
+    rf.resetElectionTimer()
+
+    DPrintf("[StartElection]: Id %d Term %d State %s\t||\tstart an election\n",
+        rf.me, rf.currentTerm, state2name(rf.state))
+
+    rf.mu.Unlock()
+
+    // 	4. send RequestVote RPCs to all other servers in parallel
+    // 创建一个goroutine来并行给其他peers发送RequestVote RPC，由其等待并行发送RPC的goroutine结束
+    go func(nVotes *int, rf *Raft) {
+        var wg sync.WaitGroup
+        winThreshold := len(rf.peers)/2 + 1
+
+        for i, _ := range rf.peers {
+            // 跳过发起投票的candidate本身
+            if i == rf.me {
+                continue
+            }
+
+            rf.mu.Lock()
+            wg.Add(1)
+            lastLogIndex := len(rf.log) - 1
+            if lastLogIndex < 0 {
+                DPrintf("[StartElection]: Id %d Term %d State %s\t||\tinvalid lastLogIndex %d\n",
+                                    rf.me, rf.currentTerm, state2name(rf.state), lastLogIndex)
+            }
+            args := RequestVoteArgs{Term: rf.currentTerm, CandidateId: rf.me,
+                LastLogIndex: lastLogIndex, LastLogTerm: rf.log[lastLogIndex].Term}
+            DPrintf("[StartElection]: Id %d Term %d State %s\t||\tissue RequestVote RPC"+
+                " to peer %d\n", rf.me, rf.currentTerm, state2name(rf.state), i)
+            rf.mu.Unlock()
+            var reply RequestVoteReply
+
+            // 使用goroutine单独给每个peer发起RequestVote RPC
+            go func(i int, rf *Raft, args *RequestVoteArgs, reply *RequestVoteReply) {
+                defer wg.Done()
+
+                ok := rf.sendRequestVote(i, args, reply)
+
+                // 发送RequestVote请求失败
+                if ok == false {
+                    rf.mu.Lock()
+                    DPrintf("[StartElection]: Id %d Term %d State %s\t||\tsend RequestVote"+
+                        " Request to peer %d failed\n", rf.me, rf.currentTerm, state2name(rf.state), i)
+                    rf.mu.Unlock()
+                    return
+                }
+
+                // 请求发送成功，查看RequestVote投票结果
+                // 拒绝投票的原因有很多，可能是任期较小，或者log不是"up-to-date"
+                if reply.VoteGranted == false {
+
+                    rf.mu.Lock()
+                    defer rf.mu.Unlock()
+                    DPrintf("[StartElection]: Id %d Term %d State %s\t||\tRequestVote is"+
+                        " rejected by peer %d\n", rf.me, rf.currentTerm, state2name(rf.state), i)
+
+                    // If RPC request or response contains T > currentTerm, set currentTerm = T,
+                    // convert to follower
+                    if rf.currentTerm < reply.Term {
+                        DPrintf("[StartElection]: Id %d Term %d State %s\t||\tless than"+
+                            " peer %d Term %d\n", rf.me, rf.currentTerm, state2name(rf.state), i, reply.Term)
+                        rf.currentTerm = reply.Term
+                        // 作为candidate，之前投票给自己了，所以这里重置voteFor，以便可以再次投票
+                        rf.voteFor = -1
+                        rf.switchTo(Follower)
+                    }
+
+                } else {
+                    // 获得了peer的投票
+                    rf.mu.Lock()
+                    DPrintf("[StartElection]: Id %d Term %d State %s\t||\tpeer %d grants vote\n",
+                        rf.me, rf.currentTerm, state2name(rf.state), i)
+                    *nVotes += 1
+                    DPrintf("[StartElection]: Id %d Term %d State %s\t||\tnVotes %d\n",
+                        rf.me, rf.currentTerm, state2name(rf.state), *nVotes)
+                    // 如果已经获得了多数投票，并且不是leader，则切换到leader状态
+                    if rf.state != Leader && *nVotes >= winThreshold {
+
+                        DPrintf("[StartElection]: Id %d Term %d State %s\t||\twin election with nVotes %d\n",
+                            rf.me, rf.currentTerm, state2name(rf.state), *nVotes)
+
+                        // 切换到leader状态
+                        rf.switchTo(Leader)
+
+                        rf.leaderId = rf.me
+
+                        // leader启动时初始化所有的nextIndex为其log的尾后位置
+                        for i := 0; i < len(rf.peers); i++ {
+                            rf.nextIndex[i] = len(rf.log)
+                        }
+                        // 不能通过写入heartbeatPeriodChan的方式表明可以发送心跳，因为
+                        // 写入操作会阻塞直到eventLoop中读取该channel，而此时需要立即
+                        // 发送一次心跳，以避免其他peer时超时发起无用的选举。
+                        go rf.broadcastHeartbeat()
+                    }
+                    rf.mu.Unlock()
+                }
+
+            }(i, rf, &args, &reply)
+        }
+
+        // 等待素有发送RPC的goroutine结束
+        wg.Wait()
+
+    }(&nVotes, rf)
+}
+```
+
+## 3. RPC请求或回复中的任期超时处理     
+论文[extended Raft]()图2中的"Rules for Servers"中指出对于任何服务器：   
+> 如果RPC请求或回复中包含的任期(term)T > currentTerm，设置currentTerm = T，并切换到`Follower`状态。     
+
+这里需要意识到，任期过时意味着自己当前的状态失效，所以在切换到`Follower`状态时，需要根据已失效的当前状态进行一些额外的处理，比如重置`voteFor`为`null`，以便可以再次投票，以及重置选举超时计时器等。     
+下面分RequestVote请求和回复，以及AppendEntiers请求和回复，具体分析：    
+1. RequestVote RPC  
+    * 请求  
+        `currentTerm < args.Term`，根据当前状态：   
+        * `Follower`    
+            可能为正常情况，比如3个Raft实例刚启动，都处于`Follower`状态，s0的选举超时时间先耗尽，变为`Candidate`状态，任期为1发起选举。s1此时任期为0，处于`Follower`状态，收到s0的RequestVote RPC请求。这时应该继续正常执行RequestVote RPC处理程序，检查s0的日志是否"up-to-date"，如果是，则投票给s0。  
+        * `Candidate`   
+            说明此候选者状态过时，由于`Candidate`在发起选举时给自己投票，会将`voteFor`设置为自身的id，所以在切换到`Follower`状态时，需要重置`voteFor`为-1，以便可以再次投票。同时相当于了解到更高任期的候选者的信息，需要重置选举超时计时器。该RequestVote请求合法，继续执行处理。  
+        * `Leader`  
+            一种可能的情况是，3个Raft实例，s0为leader，s1和s2为follower，任期都为1。这是s0宕机，s2由于选举超时变为candidate，发起选举，任期为2。这期间s0恢复，收到s2的RequestVote请求。由于leader在发起选举时投票给自己，s0需要重置`voteFor`为-1，同时重置选举超时定时器。该RequestVote请求合法，继续执行处理。s0由leader切换到follower状态时，需要给`nonLeaderCond`条件变量发广播，以唤醒休眠的`electionTimeoutTick`goroutine。我们通过`swithTo()`函数统一处理状态切换，以便可以不遗漏的处理leader和nonLeader状态切换引起的需要给`leaderCond`或`nonLeaderCond`条件变量发信号的处理。    
+    * 回复  
+        `currentTerm < reply.Term`，此时类似于请求中的`Candidate`状态，说明此候选者状态过时，进行和上面一样的处理。     
+2. AppendEntires RPC    
+    * 请求  
+        收到任期大于自己的AppendEntires RPC请求，说明已经存在一个合法的leader。这时如果是`Follower`或`Candidate`状态，重置`voteFor`为-1，并重置选举超时定时器。如果是`Leader`状态，除了进行以上步骤外，还需要给`nonLeaderCond`条件变量发广播，以唤醒休眠的`electionTimeoutTick`goroutine，`switchTo()`调用会进行给条件变量发广播处理。  
+    * 回复  
+        同收到AppendEntires RPC请求的过时的leader的处理。   
+
+在重置选举超时定时器时，需要重新随机化选举选举超时时间`electionTimout`。如果不这么做，如果出现若干个follower的`electionTimemout`相同，则它们同时选举超时，同时发起投票，如果它们瓜分了选票；然后选举超时再次发生，再次同时发起选举，再一次出现选票瓜分，无法选出leader。为了避免这种情况，应该每次重置选举超时计时器时都重新选取随机化的选举超时时间，以尽量避免选举超时相同的情况。    
 
