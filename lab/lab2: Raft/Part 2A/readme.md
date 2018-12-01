@@ -35,7 +35,7 @@ type ApplyMsg
 使用Raft算法的服务，调用`Make()`接口来创建一个Raft对等点(a Raft perr)。调用`Start()`接口要求Raft启动一次处理以便将命令追加到复制日志。Raft使用课程提供的labrpc包来交换RPC，它以Go语言的rpc库为模型，但是内部使用Go channel而不是sockets。以RequestVote RPC为例，使用`sendRequestVote()`接口发送RPC，当接收到RequestVote RPC请求时，自动调用`RequestVote()`接口处理传入的RPC。根据[Lec2: Infrastructure: RPC and threads]()的讲解，我们知道Go的RPC库会创建一个新的goroutine处理传入的RequestVote请求，也就是说创建一个新的goroutine来执行`RequestVote`。所以为Raft结构注册好RPC处理函数后，在RPC请求到达时，会自动调用该处理函数。除此之外，没有更多的信息。    
 
 ### 1.1 状态机      
-根据论文[extended Raft]()中图4给出的状态机转移图，我的第一个想法是将每个状态组织成一个独立的goroutine，以此为入口点，每个状态里面可能会再派生出几个goroutine，比如`Follower`状态只需要周期性检测选举超时(也就是心跳超时)，而`Candidate`在选举超时后还需要发起一次选举。     
+根据论文[extended Raft](https://github.com/Wangzhike/MIT6.824_DistributedSystem/blob/master/lab/lab2:%20Raft/%5B2014%2CA%5Draft-extended.pdf)中图4给出的状态机转移图，我的第一个想法是将每个状态组织成一个独立的goroutine，以此为入口点，每个状态里面可能会再派生出几个goroutine，比如`Follower`状态只需要周期性检测选举超时(也就是心跳超时)，而`Candidate`在选举超时后还需要发起一次选举。     
 这个结构的问题在于，在进行状态切换时，上一个状态的goroutine可能还在执行，比如选举超时goroutien这种周期性任务仍在循环执行，必须在切换到新的状态前，给上一个状态的所有goroutine发退出信号并等待它们完全退出后，再启动到新的goroutine。    
 可以通过channel实现这个目的，大体思路如下： 
 ```go
@@ -269,7 +269,7 @@ func (rf *Raft) startElection() {
 ```
 
 ## 3. RPC请求或回复中的任期超时处理     
-论文[extended Raft]()图2中的"Rules for Servers"中指出对于任何服务器：   
+论文[extended Raft](https://github.com/Wangzhike/MIT6.824_DistributedSystem/blob/master/lab/lab2:%20Raft/%5B2014%2CA%5Draft-extended.pdf)图2中的"Rules for Servers"中指出对于任何服务器：   
 > 如果RPC请求或回复中包含的任期(term)T > currentTerm，设置currentTerm = T，并切换到`Follower`状态。     
 
 这里需要意识到，任期过时意味着自己当前的状态失效，所以在切换到`Follower`状态时，需要根据已失效的当前状态进行一些额外的处理，比如重置`voteFor`为`null`，以便可以再次投票，以及重置选举超时计时器等。     
