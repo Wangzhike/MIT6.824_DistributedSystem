@@ -68,14 +68,14 @@ loop:
 使用带有一个小的常量参数的`time.Sleep()`来驱动定期检查(periodic checks)是最容易的，`time.Ticker`和`time.Timer`很难正确使用。    
 
 因为我们的程序结构包含了三个长期运行的goroutine：   
-1. heartbeatPeriodTick      
-2. electionTimeoutTick      
-3. eventLoop   
+1. `heartbeatPeriodTick`      
+2. `electionTimeoutTick`     
+3. `eventLoop`   
 
 前2个goroutine分别执行上述的两个定时检测任务，第3个goroutine用于循环检测前2个goroutine的超时channel，并执行对应的时间驱动事件。     
-还有一个问题就是heartbeatPeriodTick和electionTimeoutTick是状态互斥的，也就是说对于同一个peer，任一时间要么是leader，要么不是leader，所以只能执行其中一个goroutine，而另一个goroutine由于是长期运行的，还不能退出，所以只能休眠等待，可以通过条件变量实现休眠等待，和对应状态切换时的唤醒操。    
+还有一个问题就是`heartbeatPeriodTick`和`electionTimeoutTick`是状态互斥的，也就是说对于同一个peer，任一时间要么是leader，要么不是leader，所以只能执行其中一个goroutine，而另一个goroutine由于是长期运行的，还不能退出，所以只能休眠等待，可以通过条件变量实现休眠等待，和对应状态切换时的唤醒操作。    
 
-electionTimeoutTick实现：   
+`electionTimeoutTick`实现：   
 ```go
 // 选举超时(心跳超时)检查器，定期检查自最新一次从leader那里收到AppendEntries RPC(包括heartbeat)
 // 或给予candidate的RequestVote RPC请求的投票的时间(latestHeardTIme)以来的时间差，是否超过了
@@ -109,8 +109,8 @@ func (rf *Raft) electionTimeoutTick() {
 }
 ```
 
-heartbeatPeriodTick实现与之类似。       
-eventLoop实现：     
+`heartbeatPeriodTick`实现与之类似。       
+`eventLoop`实现：     
 ```go
 // 消息处理主循环，处理两种互斥的时间驱动的时间到期：
 // 1) 心跳周期到期； 2) 选举超时。
@@ -140,7 +140,7 @@ func (rf *Raft) eventLoop() {
 为了提高性能，需要并行发送RPC。可以迭代peers，为每一个peer单独创建一个goroutine发送RPC。[Raft Structure Adivce](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)建议：     
 > 在同一个goroutine里进行RPC回复(reply)处理是最简单的，而不是通过(over)channel发送回复消息。    
 
-所以，为每个peer创建一个gorotuine同步发送RPC并进行RPC回复处理。另外，为了保证由于RPC发送阻塞而阻塞的goroutine不会阻塞RequestVote RPC的投票统计，需要时每个发送RequestVote RPC的goroutine中实时统计获得的选票数，达到多数后就立即切换为`Leader`状态，并立即发送一次心跳，组织其他peer因选举超时而发起新的选举。而不能在等待所有发送goroutine处理结束后再统计票数，这样阻塞的goroutine，会阻塞领导者的产生。      
+所以，为每个peer创建一个gorotuine同步发送RPC并进行RPC回复处理。另外，为了保证由于RPC发送阻塞而阻塞的goroutine不会阻塞RequestVote RPC的投票统计，需要在每个发送RequestVote RPC的goroutine中实时统计获得的选票数，达到多数后就立即切换为`Leader`状态，并立即发送一次心跳，阻止其他peer因选举超时而发起新的选举。而不能在等待所有发送goroutine处理结束后再统计票数，这样阻塞的goroutine，会阻塞领导者的产生。      
 还有一个问题就是最好等待所有发送RPC的goroutine的退出，因为选举和广播心跳操作不能阻塞，必须立即返回。所以，为了等待发送goroutine退出，需要在并行发送RPC的外部再创建一个goroutine，用于迭代peers并行发送RPC和等待这些发送RPC的goroutine结束。     
 发起选举的代码实现如下：    
 ```go
@@ -252,7 +252,7 @@ func (rf *Raft) startElection() {
                         }
                         // 不能通过写入heartbeatPeriodChan的方式表明可以发送心跳，因为
                         // 写入操作会阻塞直到eventLoop中读取该channel，而此时需要立即
-                        // 发送一次心跳，以避免其他peer时超时发起无用的选举。
+                        // 发送一次心跳，以避免其他peer因超时发起无用的选举。
                         go rf.broadcastHeartbeat()
                     }
                     rf.mu.Unlock()
