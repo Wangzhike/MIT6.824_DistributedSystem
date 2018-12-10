@@ -21,3 +21,15 @@
 对于`Start()`，只有为`Leader`状态且已将entry复制到了大多数peers，才能提升`commitIndex`。    
 因为是为每个peer创建一个goroutine发送RPC并进行RPC回复的处理，根据回复实时统计得到肯定回复的数量。可能出现在给其中一个peer发送RPC时，因为该peer的任期比leader更高，它拒绝了candidate或leder的RPC请求，candidate或leader被拒绝后，切换到`Follower`状态。而与此同时，或者在此之后，该过时的candidaet或leader(已经切换到follwer)，收到了其他peers的大多数的肯定回复，如果这时不对candidate或leader的状态加以判断，那么该过时的candidate或leader因为满足了多数者条件，采取进一步的动作(对于过时的candidate是变为leader，对于过时的leader来说是提升`commitIndex`)，这显然是错误的！所以必须在达到多数者条件时检查下是否仍处于指定状态，如果是，才能进一步执行相关动作。   
 ## 2. AppendEntries RPC请求处理     
+### 2.1 一致性检查通过后只有存在冲突才进行日志替换 
+AppendEntries RPC请求处理的一个重要内容就是进行一致性检查，如果一致性检查失败，就会将`AppenEntriesReply`中的参数`success`置为false，以便leader递减`nextIndex`并重试。最终一致性检查通过，如果存在冲突的条目，则会删除冲突的条目并替换为`AppendEntriesArgs`中的`entries`。   
+正如[Raft学生指南](https://thesquareplanet.com/blog/students-guide-to-raft/)指出的：    
+> 许多人的另一个问题(通常在解决了上面那个问题后马上遇到)是当收到心跳后，它们会在`prevLogIndex`之后(following prevLogIndex)截断(truncate)跟随者的日志，然后追加`AppendEntries`参数中包含的任何条目。这也是不正确的。我们可以再次转向图2：    
+**I**f an existing entry conflicts with a new one(same index but different terms), delete the existing entry and all that follow it.    
+这里的**If**至关重要。如果跟随者拥有领导者发送的所有条目，则跟随者一定不能(MUST NOT)截断其日志。领导者发送的条目之后的任何内容(any elements following the entries sent by the leader)必须(MUST)保留。   
+这是因为我们可能从领导者那里收到过时的(outdated)AppendEntries RPC，截断日志意味着“收回(taking back)”这些我们可能已经告诉领导者它们在我们的日志中的条目。    
+
+所以判断folower日志是否和leader的log存在冲突的方法就是检查`AppendEntriesArgs`的`entries`参数中包含的条目是否都已经存在于follower的log中，如果都存在，则不存在冲突。     
+可以从并发的调用`Start()`的场景下理解这个问题，比如初始时leader的log日志为空(我们的实现里空的log为含有一条index为0的包含了一条空命令的任期为0的entry的log)，客户端连续调用`Start()`6次，追加了6条命令到leader的日志中，它们的`index`分别为1~6。首先，复制`index6`的goroutine先执行，并已经将index为1~6的条目复制到某个peer的log中。而后，复制`index3`的goroutine向该peer发送AppendEntries RPC，自然一次性就通过了一致性检查，此时的场景如下图(a)所示：      
+![冲突检查](figures/冲突检查.png)   
+此时`AppendEntriesArgs`中的`entires`的所有条目在该peer的log中都存在，所以此时不存在冲突，该peer不应该截断其日志，并复制`entries`中的条目，错误的做法如图(b)所示。正确的做法是什么也无需做，如图(c)所示。    
