@@ -50,7 +50,7 @@ loop:
     }
 ```
 每个gorutine的结构都是这样，切换新状态前，关闭done channel，从而使得这些goroutine退出循环并退出。   
-但新的状态可能需要马上切换，比如`Leader`状态，需要立即向其他peers发送心跳，以防止其超时发起无用的选举。这是先等待上一个状态的所有goroutien结束，可能会出现问题。    
+但新的状态可能需要马上切换，比如`Leader`状态，需要立即向其他peers发送心跳，以防止其超时发起无用的选举。这时先等待上一个状态的所有goroutien结束，可能会出现问题。    
 自己的第一个实现基本无法通过测试，只有偶尔可以通过第一个不存在网络故障的正常选举测试。  
 
 ### 1.2 时间驱动的(time-driven)、长期运行的(long-running)的goroutine     
@@ -58,7 +58,7 @@ loop:
 仔细分析不难发现，在这些状态的所有goroutine里，其实存在功能相同的goroutine，它们随着状态切换被频繁创建和杀掉，并且它们是长期运行的周期性任务，这样做也存在问题。正如[Raft Structure Advice](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)所述：     
 > Raft实例有两种时间驱动的(time-driven)活动：(1) 领导者必须发送心跳，(2) 以及其他(对等点)自收到领导者消息以来(since hearing from the leader)，如果太长时间过去(if too much time has passed)，开始一次选举。最好使用一个专门的(dedicated)、长期运行的(long-running)goroutine来驱动这两者中的每个活动，而不是将多个活动组合到单个goroutine中。        
 
-可以看到，这两个时间驱动的活动涉及到两个定时任务：      
+可以看到，**这两个时间驱动的活动涉及到两个定时任务**：      
 1. 心跳周期超时检测     
 2. 选举超时(心跳超时)检测      
 
@@ -92,7 +92,7 @@ func (rf *Raft) electionTimeoutTick() {
             elapseTime := time.Now().UnixNano() - rf.latestHeardTime
             if int(elapseTime/int64(time.Millisecond)) >= rf.electionTimeout {
                 DPrintf("[ElectionTimeoutTick]: Id %d Term %d State %s\t||\ttimeout," +
-                        " convert to Candidate\n", rf.me, term, state2name(rf.state))
+                    " convert to Candidate\n", rf.me, term, state2name(rf.state))
                 // 选举超时，peer的状态只能是follower或candidate两种状态。
                 // 若是follower需要转换为candidate发起选举； 若是candidate
                 // 需要发起一次新的选举。---所以这里设置状态为Candidate---。
@@ -102,8 +102,9 @@ func (rf *Raft) electionTimeoutTick() {
                 rf.electionTimeoutChan <- true
             }
             rf.mu.Unlock()
-            // 休眠1ms，作为tick的时间间隔
-            time.Sleep(time.Millisecond)
+            // 休眠10ms，作为tick的时间间隔。如果休眠时间太短，比如1ms，将导致频繁检查选举超时，
+            // 造成测量到的user时间，即CPU时间增长，可能超过5秒。
+            time.Sleep(time.Millisecond*10)
         }
     }
 }
@@ -183,7 +184,7 @@ func (rf *Raft) startElection() {
             lastLogIndex := len(rf.log) - 1
             if lastLogIndex < 0 {
                 DPrintf("[StartElection]: Id %d Term %d State %s\t||\tinvalid lastLogIndex %d\n",
-                                    rf.me, rf.currentTerm, state2name(rf.state), lastLogIndex)
+                    rf.me, rf.currentTerm, state2name(rf.state), lastLogIndex)
             }
             args := RequestVoteArgs{Term: rf.currentTerm, CandidateId: rf.me,
                 LastLogIndex: lastLogIndex, LastLogTerm: rf.log[lastLogIndex].Term}
@@ -235,8 +236,8 @@ func (rf *Raft) startElection() {
                     *nVotes += 1
                     DPrintf("[StartElection]: Id %d Term %d State %s\t||\tnVotes %d\n",
                         rf.me, rf.currentTerm, state2name(rf.state), *nVotes)
-                    // 如果已经获得了多数投票，并且不是leader，则切换到leader状态
-                    if rf.state != Leader && *nVotes >= winThreshold {
+                    // 如果已经获得了多数投票，并且是Candidate状态，则切换到leader状态
+                    if rf.state == Candidate && *nVotes >= winThreshold {
 
                         DPrintf("[StartElection]: Id %d Term %d State %s\t||\twin election with nVotes %d\n",
                             rf.me, rf.currentTerm, state2name(rf.state), *nVotes)
@@ -267,23 +268,32 @@ func (rf *Raft) startElection() {
     }(&nVotes, rf)
 }
 ```
+注意，**发起选举时，只有为`Candidate`状态且获得了多数者的投票，才能变为leader。**
 
 ## 3. RPC请求或回复中的任期超时处理     
 论文[extended Raft](https://raft.github.io/raft.pdf)图2中的"Rules for Servers"中指出对于任何服务器：   
 > 如果RPC请求或回复中包含的任期(term)T > currentTerm，设置currentTerm = T，并切换到`Follower`状态。     
 
 这里需要意识到，任期过时意味着自己当前的状态失效，所以在切换到`Follower`状态时，需要根据已失效的当前状态进行一些额外的处理，比如重置`voteFor`为`null`，以便可以再次投票，以及重置选举超时计时器等。     
-下面分RequestVote请求和回复，以及AppendEntiers请求和回复，具体分析：    
+下面分RequestVote请求和回复，以及AppendEntiers请求处理(request handler)和回复处理(reply processing)，具体分析：    
 1. RequestVote RPC  
-    * 请求  
+    * 请求处理(request handler)  
         `currentTerm < args.Term`，根据当前状态：   
         * `Follower`    
-            可能为正常情况，比如3个Raft实例刚启动，都处于`Follower`状态，s0的选举超时时间先耗尽，变为`Candidate`状态，任期为1发起选举。s1此时任期为0，处于`Follower`状态，收到s0的RequestVote RPC请求。这时应该继续正常执行RequestVote RPC处理程序，检查s0的日志是否"up-to-date"，如果是，则投票给s0。  
+            可能为正常情况，比如3个Raft实例刚启动，都处于`Follower`状态，s0的选举超时时间先耗尽，变为`Candidate`状态，任期为1发起选举。s1此时任期为0，处于`Follower`状态，收到s0的RequestVote RPC请求。这时应该继续正常执行RequestVote RPC处理程序，检查s0的日志是否"up-to-date"，如果是，则投票给s0。      
+            但仍然可以将`voteFor`重置为-1，因为既然该peer的`rf.currentTerm < args.Term`，说明该peer此时还没有给哪个candidate投票，因为一旦它投过票，其任期就会更新为`args.Term`。所以此时重置`voteFor`为-1是安全的，往下继续执行处理，仍然可以投票。    
         * `Candidate`   
-            说明此候选者状态过时，由于`Candidate`在发起选举时给自己投票，会将`voteFor`设置为自身的id，所以在切换到`Follower`状态时，需要重置`voteFor`为-1，以便可以再次投票。同时相当于了解到更高任期的候选者的信息，需要重置选举超时计时器。该RequestVote请求合法，继续执行处理。  
+            说明此候选者状态过时，由于`Candidate`在发起选举时给自己投票，会将`voteFor`设置为自身的id，所以在切换到`Follower`状态时，需要重置`voteFor`为-1，以便可以再次投票。~~同时相当于了解到更高任期的候选者的信息，需要重置选举超时计时器~~。这里不需要重置选举超时计时器，该工作在接下来给出投票时进行重置，如果拒绝了投票请求，就不会重置选举超时计时器，这时它可以再次发起选举。该RequestVote请求合法，继续执行处理。  
         * `Leader`  
-            一种可能的情况是，3个Raft实例，s0为leader，s1和s2为follower，任期都为1。这是s0宕机，s2由于选举超时变为candidate，发起选举，任期为2。这期间s0恢复，收到s2的RequestVote请求。由于leader在发起选举时投票给自己，s0需要重置`voteFor`为-1，同时重置选举超时定时器。该RequestVote请求合法，继续执行处理。s0由leader切换到follower状态时，需要给`nonLeaderCond`条件变量发广播，以唤醒休眠的`electionTimeoutTick`goroutine。我们通过`swithTo()`函数统一处理状态切换，以便可以不遗漏的处理leader和nonLeader状态切换引起的需要给`leaderCond`或`nonLeaderCond`条件变量发信号的处理。    
-    * 回复  
+            一种可能的情况是，3个Raft实例，s0为leader，s1和s2为follower，任期都为1。这是s0宕机，s2由于选举超时变为candidate，发起选举，任期为2。这期间s0恢复，收到s2的RequestVote请求。由于leader在发起选举时投票给自己，s0需要重置`voteFor`为-1。~~同时重置选举超时定时器~~。该RequestVote请求合法，继续执行处理。     
+            s0由leader切换到follower状态时，需要给`nonLeaderCond`条件变量发广播，以唤醒休眠的`electionTimeoutTick`goroutine。我们通过`swithTo()`函数统一处理状态切换，以便可以不遗漏的处理leader和nonLeader状态切换引起的需要给`leaderCond`或`nonLeaderCond`条件变量发信号的处理。      
+
+        以上可以看出，在RequestVote RPC的请求处理中，当`rf.currentTerm < args.Term`时，除了设置`rf.currentTerm = args.Term`，切换为`Follower`状态外，不管该peer之前处于什么状态，都需要重置`voteFor`为-1，然后继续执行请求处理，根据args参数是否是“up-to-date”，以决定是否给出投票。        
+        对于该peer之前处于`Follower`和`Candidate`的场景，再给出一个例子：比如有5个server，启动后s0, s2, s4选取的选举超时时间相同，同时超时，所以同时发起选举(s0, s2, s4发起选举前再次重置选举超时计时器)，s0获得自身和s1的投票，s2获得自身和s3的投票，s4只有自己的投票，三者都没有获得大多数选票，此term1选举被瓜分，如下图(a)所示：    
+        ![RequestVote RPC handler任期超时处理](lab/lab2: Raft/Part 2A/RequestVote RPC handler处理任期过时.png)      
+        紧接着，s2率先选举超时，再次发起选举，如(b)所示，此时，s0, s4作为candidate，重置`voteFor`为-1，s1, s3作为follower，重置`voteFor`为-1，如(c)所示，然后，由于s2满足"up-to-date"，获得所有peers的投票，变为leader，如(d)所示。     
+
+    * 回复处理(reply processing)  
         `currentTerm < reply.Term`，此时类似于请求中的`Candidate`状态，说明此候选者状态过时，进行和上面一样的处理。     
 2. AppendEntires RPC    
     * 请求  
@@ -291,5 +301,5 @@ func (rf *Raft) startElection() {
     * 回复  
         同收到AppendEntires RPC请求的过时的leader的处理。   
 
-在重置选举超时定时器时，需要重新随机化选举选举超时时间`electionTimout`。如果不这么做，如果出现若干个follower的`electionTimemout`相同，则它们同时选举超时，同时发起投票，如果它们瓜分了选票；然后选举超时再次发生，再次同时发起选举，再一次出现选票瓜分，无法选出leader。为了避免这种情况，应该每次重置选举超时计时器时都重新选取随机化的选举超时时间，以尽量避免选举超时相同的情况。    
+**在重置选举超时定时器时，需要重新随机化选举选举超时时间`electionTimout`**。如果不这么做，如果出现若干个follower的`electionTimemout`相同，则它们同时选举超时，同时发起投票，如果它们瓜分了选票；然后选举超时再次发生，再次同时发起选举，再一次出现选票瓜分，无法选出leader。为了避免这种情况，应该每次重置选举超时计时器时都重新选取随机化的选举超时时间，以尽量避免选举超时相同的情况。    
 
