@@ -59,6 +59,7 @@ AppendEntries RPC请求处理的一个重要内容就是进行一致性检查，
 一旦更新了`commitIndex`，需要一种机制将新提交的entry封装为`ApplyMsg`消息并发送到传递给`Make()`函数的参数`applyCh`channel中。    
 正如[Raft Structrue Advice](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)关于应用提交的日志条目的建议：     
 > 你会想有一个单独的(separate)长期运行的goroutine来按顺序(in order)发送已提交的(committed)日志条目到`applyCh`。它必须是单独的(separate)，因为在`applyCh`上发送消息可能阻塞(block)；并且它也必须是单个的goroutine，因为否则可能很难确保你可以按照日志顺序(in log order)发送日志条目。提升(advances)`commitIndex`的代码需要踢(kick)该应用goroutine(the apply goroutine)；使用条件变量(condition variable)(Go's sync.Cond)做这个可能是最简单的。   
+    
 参照之前[选举超时(心跳超时)检测electionTimeoutTick的实现](../Part%202A/readme.md#12-时间驱动的time-driven长期运行的long-running的goroutine)，我们自然想到可以将该通知机制作为另一个长期运行的goroutine，它循环检测`commitIndex`是否大于`lastApplied`，如果满足，则逐个将`[lastApplied+1, commitIndex]`之间的entry封装为`ApplyMsg`发送到`applyCh`，如果不满足，则休眠等待条件变量`applyCond`而每当leader或其他follower的`commitIndex`更新后，就给`applyCond`发信号。     
 `applyEntries`goroutine的代码实现如下：     
 ```go
