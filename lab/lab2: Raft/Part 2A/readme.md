@@ -290,7 +290,7 @@ func (rf *Raft) startElection() {
 
         以上可以看出，在RequestVote RPC的请求处理中，当`rf.currentTerm < args.Term`时，除了设置`rf.currentTerm = args.Term`，切换为`Follower`状态外，不管该peer之前处于什么状态，都需要重置`voteFor`为-1，然后继续执行请求处理，根据args参数是否是“up-to-date”，以决定是否给出投票。        
         对于该peer之前处于`Follower`和`Candidate`的场景，再给出一个例子：比如有5个server，启动后s0, s2, s4选取的选举超时时间相同，同时超时，所以同时发起选举(s0, s2, s4发起选举前再次重置选举超时计时器)，s0获得自身和s1的投票，s2获得自身和s3的投票，s4只有自己的投票，三者都没有获得大多数选票，此term1选举被瓜分，如下图(a)所示：    
-        ![RequestVote RPC handler任期超时处理](lab/lab2:%20Raft/Part%202A/figures/RequestVote%20RPC%20handler处理任期过时.png)      
+        ![RequestVote RPC handler任期超时处理](figures/RequestVote%20RPC%20handler%E5%A4%84%E7%90%86%E4%BB%BB%E6%9C%9F%E8%BF%87%E6%97%B6)      
         紧接着，s2率先选举超时，再次发起选举，如(b)所示，此时，s0, s4作为candidate，重置`voteFor`为-1，s1, s3作为follower，重置`voteFor`为-1，如(c)所示，然后，由于s2满足"up-to-date"，获得所有peers的投票，变为leader，如(d)所示。     
 
     * 回复处理(reply processing)  
