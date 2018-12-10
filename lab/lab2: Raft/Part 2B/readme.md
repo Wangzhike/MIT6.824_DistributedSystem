@@ -30,6 +30,19 @@ AppendEntries RPC请求处理的一个重要内容就是进行一致性检查，
 这是因为我们可能从领导者那里收到过时的(outdated)AppendEntries RPC，截断日志意味着“收回(taking back)”这些我们可能已经告诉领导者它们在我们的日志中的条目。    
 
 所以判断folower日志是否和leader的log存在冲突的方法就是检查`AppendEntriesArgs`的`entries`参数中包含的条目是否都已经存在于follower的log中，如果都存在，则不存在冲突。     
-可以从并发的调用`Start()`的场景下理解这个问题，比如初始时leader的log日志为空(我们的实现里空的log为含有一条index为0的包含了一条空命令的任期为0的entry的log)，客户端连续调用`Start()`6次，追加了6条命令到leader的日志中，它们的`index`分别为1~6。首先，复制`index6`的goroutine先执行，并已经将index为1~6的条目复制到某个peer的log中。而后，复制`index3`的goroutine向该peer发送AppendEntries RPC，自然一次性就通过了一致性检查，此时的场景如下图(a)所示：      
+可以从并发的调用`Start()`的场景下理解这个问题，比如初始时leader的log日志为空(我们的实现里空的log为含有一条index为0的包含了一条空命令的任期为0的entry的log)，客户端连续调用`Start()`6次，追加了6条命令到leader的日志中，它们的`index`分别为1-6。首先，复制`index6`的goroutine先执行，并已经将index为1-6的条目复制到某个peer的log中。而后，复制`index3`的goroutine向该peer发送AppendEntries RPC，自然一次性就通过了一致性检查，此时的场景如下图(a)所示：      
 ![冲突检查](figures/冲突检查.png)   
 此时`AppendEntriesArgs`中的`entires`的所有条目在该peer的log中都存在，所以此时不存在冲突，该peer不应该截断其日志，并复制`entries`中的条目，错误的做法如图(b)所示。正确的做法是什么也无需做，如图(c)所示。    
+### 2.2 减少被拒绝的AppendEntries RPC的次数     
+正如[extended Raft](https://raft.github.io/raft.pdf)指出的：    
+> 如果需要的话，算法可以通过减少被拒绝的追加条目(AppendEntries) RPC的次数来优化。例如，当追加条目(AppendEntries) RPC的请求被拒绝时，跟随者可以包含冲突条目的任期号和它自己存储的那个任期的第一个索引值。借助这个信息，领导者可以减少nextIndex来越过该任期内的所有冲突的日志条目；这样就变为每个任期需要一条追加条目(AppendEntries) RPC而不是每个条目一条。      
+
+这么做之所以有效的原因在于`AppendEntriesArgs`的`entrires`携带的日志条目可以在冲突点之前，但不能在冲突点之后。也就是说，如果任期2的某个条目是冲突点，但该条目不是任期2的第一个条目，按照论文中给出的优化处理，`entries`中将包含从任期2的第一个条目到该冲突点之前的所有条目，而这些条目本身是和leader的log中对应位置的条目是匹配的，但是截断这些条目并替换为leader中一样的条目，仍然是正确的。    
+而对于leader的AppendEntries RPC回复处理来说，得到了`AppendEntriesReply`的`conflictTerm`和`conflictFirstIndex`参数，需要进行进一步的处理。    
+首先，`conflictFirstIndex`一定小于`nextIndex`，因为一致性检查是从`prevLogIndex(nextIndex-1)`处查看的，所以`conflictTerm`至多是`prevLogIndex`对应entry的任期，而`conflictFirstIndex`作为`conflictTerm`的第一次出现的索引，至多等于`prevLogIndex`，所以必然小于`nextIndex`。      
+接着判断leader的log中`conflictFirstIndex`处entry的任期是否等于`conflictTerm`，如果等于，说明在该索引处，leader与该peer的日志已经是匹配的，可以直接将`nextIndex`置为`conflictFirstIndex+1`，否则leader应该也采取上面的优化手段，递减`conflictFirstIndex`，直到其为该任期的第一个条目的索引，接着也是将`nextIndex`置为`conflictIndex+1`，再次发送AppendEntries RPC进行重试。并且前一种情况下，接下来的这次重置将通过一致性检查，而第二种情况则不一定，而且还有可能出现“活锁”。    
+考虑下面这种情况，leader的log中`conflictFirstIndex`处entry的任期和`conflictTerm`不等，而且该entry也是leader的log中该任期的第一次出现的entry。如果采取上面的方式，则进行重试时`nextIndex`就是本次`AppendEntriesReply`中的`conflictFirstIndex+1`，即接下来的`AppendEntriesArgs`中的`prevLogIndex`参数等于本次回复中的`conflictFirstIndex`，所以重试肯定无法通过一致性检查，而这次重试的回复中包含的仍是相同的`conflictFirstIndex`，这个过程就会一直重复下去，形成“活锁”。应该对这种情况进行判断，可以看出当经过上述处理的`conflictFirstIndex`的值仍和`reply.ConflictFirstIndex`相等，而且leader的`log[conflictFirstIndex].Term`又不等于`reply.ConflictTerm`时，就对应这种情况。这时只需要简单的将`nextIndex`减1，和没有优化前的处理一样，保证`nextIndex`可以前进即可。一种可能的情况如下图所示：      
+![活锁](figures/优化带来的活锁.png)     
+### 2.3 一致性检查通过一定要设置为`Follower`状态    
+如果收到AppendEntries RPC且一致性检查通过，必须将该peer的状态设置为`Follower`，因为收到并通过了AppendEntries RPC(包括心跳)，说明承认了leader的合法地位，此时该peer必须是follwer，而不能是candidate或leader。    
+## 3. 心跳是否要携带日志条目    
