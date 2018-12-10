@@ -4,6 +4,6 @@
 ## Lab  
 - [x] Lab1: MapReduce
 - [ ] Lab2: Raft    
-    - [x] Part 2A: [Leader election and heartbeats](https://github.com/Wangzhike/MIT6.824_DistributedSystem/blob/master/lab/lab2:%20Raft/Part%202A/readme.md)
-    - [ ] Part 2B: Log Replication
+    - [x] Part 2A: [Leader election and heartbeats](lab/lab2:%20Raft/Part%202A/readme.md)
+    - [x] Part 2B: [Log Replication](lab/lab2:%20Raft/Part%202B/readme.md)
     - [ ] Part 2C: Persistence
