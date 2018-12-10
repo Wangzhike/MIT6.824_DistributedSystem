@@ -55,3 +55,45 @@ AppendEntries RPC请求处理的一个重要内容就是进行一致性检查，
 概念上讲，心跳不携带entries，这指的是对某个peer而言，其`nextIndex`为其log的尾后位置时的这种一般情况。但是如果`nextIndex`小于log的尾后位置，这时心跳必须携带entries，这是因为正如[1.4 当entry被提交后发送一次心跳以通知其他peers更新`commitIndex`](#14-当entry被提交后发送一次心跳以通知其他peers更新commitIndex)所述，心跳的一个作用是通知其他peer更新`commitIndex`以应用新提交的entry，所以如果这次心跳通过了一致性检查，就可能会提升`commitIndex`，这时会给`applyCond`条件变量发信号以提交`[lastApplied, commitIndex]`之间的entries。如果此次心跳没有携带entries，则不会有不一致日志的截断和leader对应位置entries的追加，所以这时提交的可能是和leader不一致的过时的entries，这就出现了严重错误。所以这种情况下心跳要携带entries信息。而是否携带entries，完全取决于`nextIndex`的值。   
 在实验中，我为了保证心跳不携带entries不出现上述错误，在`Start()`调用中，当在处理AppendEntries RPC的回复时发现leader任期是过时的，除了更新leader的任期为回复中的更新的任期，切换为follower，重置`voteFor`为-1，以及重置选举超时定时器这些常规操作外，任期过时，也说明了要追加的entry是过时的，此时应该从log中删除这条entry，以免该过时的leader再次当选后，可能会复制该entry到其他peers。同时在发送心跳时，当一致性检查失败时，接下来的重试都携带entreis，以便如果这次重试的一致性检查通过，可以进行日志追加，以使得AppendEntries RPC请求处理程序提升`commitIndex`并应用新提交的entires到状态机的操作，不是应用之前不一致的entries，而是追加的leader的entries。但这还是无法避免一些情况下仍出错，比如Part 2B的测试函数`TestBackup2B()`的情况，如下图所示：    
 ![TestBackup2B()出错](figures/心跳根据nextIndex携带entries.png)     
+## 4. 新增的长期运行的(long-runing)的应用日志条目goroutine  
+一旦更新了`commitIndex`，需要一种机制将新提交的entry封装为`ApplyMsg`消息并发送到传递给`Make()`函数的参数`applyCh`channel中。    
+正如[Raft Structrue Advice](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)关于应用提交的日志条目的建议：     
+> 你会想有一个单独的(separate)长期运行的goroutine来按顺序(in order)发送已提交的(committed)日志条目到`applyCh`。它必须是单独的(separate)，因为在`applyCh`上发送消息可能阻塞(block)；并且它也必须是单个的goroutine，因为否则可能很难确保你可以按照日志顺序(in log order)发送日志条目。提升(advances)`commitIndex`的代码需要踢(kick)该应用goroutine(the apply goroutine)；使用条件变量(condition variable)(Go's sync.Cond)做这个可能是最简单的。   
+参照之前[选举超时(心跳超时)检测electionTimeoutTick的实现](../Part%202A/readme.md#12-时间驱动的time-driven长期运行的long-running的goroutine)，我们自然想到可以将该通知机制作为另一个长期运行的goroutine，它循环检测`commitIndex`是否大于`lastApplied`，如果满足，则逐个将`[lastApplied+1, commitIndex]`之间的entry封装为`ApplyMsg`发送到`applyCh`，如果不满足，则休眠等待条件变量`applyCond`而每当leader或其他follower的`commitIndex`更新后，就给`applyCond`发信号。     
+`applyEntries`goroutine的代码实现如下：     
+```go
+// 按顺序(in order)发送已提交的(committed)日志条目到applyCh的goroutine。
+// 该goroutine是单独的(separate)、长期运行的(long-running)，在没有新提交
+// 的entries时会等待条件变量；当更新了commitIndex之后会给条件变量发信号，
+// 以唤醒该goroutine执行提交。
+func (rf *Raft) applyEntries() {
+    for {
+
+        rf.mu.Lock()
+        commitIndex := rf.commitIndex
+        lastApplied := rf.lastApplied
+        DPrintf("[applyEntries]: Id %d Term %d State %s\t||\tlastApplied %d and commitIndex %d\n",
+            rf.me, rf.currentTerm, state2name(rf.state), lastApplied, commitIndex)
+        rf.mu.Unlock()
+
+        if lastApplied == commitIndex {
+            rf.mu.Lock()
+            rf.applyCond.Wait()
+            rf.mu.Unlock()
+        } else {
+            for i := lastApplied+1; i <= commitIndex; i++ {
+
+                rf.mu.Lock()
+                applyMsg := ApplyMsg{CommandValid:true, Command:rf.log[i].Command,
+                    CommandIndex:i}
+                rf.lastApplied = i
+                DPrintf("[applyEntries]: Id %d Term %d State %s\t||\tapply command of index %d to applyCh\n",
+                    rf.me, rf.currentTerm, state2name(rf.state), i)
+                rf.mu.Unlock()
+                rf.applyCh <- applyMsg
+
+            }
+        }
+    }
+}
+```
