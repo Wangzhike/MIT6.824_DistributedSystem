@@ -1,5 +1,18 @@
 # Part 2B: Log Replication  
 > 实现领导者和跟随者代码来追加新的日志条目。这将涉及到实现`Start()`，完成AppendEntries RPC结构，发送它们，充实(fleshing out)AppendEntry RPC处理程序(handler)，以及推进(advancing)领导者的`commitIndex`。    
+- [1. `Start()`实现](#1-start实现)      
+    - [1.1 并发处理](#11-并发处理)      
+    - [1.2 nextIndex的理解](#12-nextindex的理解)    
+    - [1.3 达到多数者条件时必须仍处于指定状态](#13-达到多数者条件时必须仍处于指定状态)      
+    - [1.4 当entry被提交后发送一次心跳以通知其他peers更新`commitIndex`](#14-当entry被提交后发送一次心跳以通知其他peers更新commitindex)      
+- [2. AppendEntries RPC请求处理](#2-appendentries-rpc请求处理)      
+    - [2.1 一致性检查通过后只有存在冲突才进行日志替换](#21-一致性检查通过后只有存在冲突才进行日志替换)      
+    - [2.2 减少被拒绝的AppendEntries RPC的次数](#22-减少被拒绝的appendentries-rpc的次数)    
+    - [2.3 一致性检查通过一定要设置为`Follower`状态](#23-一致性检查通过一定要设置为follower状态)    
+- [3. 心跳处理](#3-心跳处理)    
+    - [3.1 心跳也需要重试机制](#31-心跳也需要重试机制)      
+    - [3.2 心跳应该根据`nextIndex`的值判断是否需要携带entries信息](#32-心跳应该根据nextindex的值判断是否需要携带entries信息)    
+- [4. 新增的长期运行的(long-running)的应用日志条目goroutine](#4-新增的长期运行的long-running的应用日志条目goroutine)     
 
 ## 1. `Start()`实现     
 使用Raft的服务调用`Start()`想要就追加到Raft的log中下一条命令开始达成一致(start agreement)。如果该服务器不是leader，它返回false，否则开始达成一致并立即返回。不保证这条命令将被提交到(be committed to)Raft的log，由于leader可能故障或者输掉选举。即使Raft实例已经被杀掉，该函数也应该优雅地返回。    
@@ -420,7 +433,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 ### 3.1 心跳也需要重试机制      
 `Start()`中在发送AppendEntries RPC时，该RPC可能会因为一致性检查不通过而失败，此时需要递减`nextIndex`并重新发送RPC，直到一致性检查通过，然后进行进一步处理。因为发送心跳也会进行一致性检查，为了不因为初始时的日志不一致而使得心跳发送失败，而其他peers因为没有通过心跳而心跳超时(也就是选举超时，即`electionTimeout`)，进而发起不需要的(no-needed)选举，所以发送心跳也需要在一致性检查失败后进行重试。  
 ### 3.2 心跳应该根据`nextIndex`的值判断是否需要携带entries信息  
-概念上讲，心跳不携带entries，这指的是对某个peer而言，其`nextIndex`为其log的尾后位置时的这种一般情况。但是如果`nextIndex`小于log的尾后位置，这时心跳必须携带entries，这是因为正如[1.4 当entry被提交后发送一次心跳以通知其他peers更新`commitIndex`](#14-当entry被提交后发送一次心跳以通知其他peers更新commitIndex)所述，心跳的一个作用是通知其他peer更新`commitIndex`以应用新提交的entry，所以如果这次心跳通过了一致性检查，就可能会提升`commitIndex`，这时会给`applyCond`条件变量发信号以提交`[lastApplied, commitIndex]`之间的entries。如果此次心跳没有携带entries，则不会有不一致日志的截断和leader对应位置entries的追加，所以这时提交的可能是和leader不一致的过时的entries，这就出现了严重错误。所以这种情况下心跳要携带entries信息。而是否携带entries，完全取决于`nextIndex`的值。   
+概念上讲，心跳不携带entries，这指的是对某个peer而言，其`nextIndex`为其log的尾后位置时的这种一般情况。但是如果`nextIndex`小于log的尾后位置，这时心跳必须携带entries，这是因为正如[1.4 当entry被提交后发送一次心跳以通知其他peers更新`commitIndex`](#14-当entry被提交后发送一次心跳以通知其他peers更新commitIndex)所述，心跳的一个作用是通知其他peer更新`commitIndex`以应用新提交的entry，所以如果这次心跳通过了一致性检查，就可能会提升`commitIndex`，这时会给`applyCond`条件变量发信号以提交`[lastApplied+1, commitIndex]`之间的entries。如果此次心跳没有携带entries，则不会有不一致日志的截断和leader对应位置entries的追加，所以这时提交的可能是和leader不一致的过时的entries，这就出现了严重错误。所以这种情况下心跳要携带entries信息。而是否携带entries，完全取决于`nextIndex`的值。   
 在实验中，我为了保证心跳不携带entries不出现上述错误，在`Start()`调用中，当在处理AppendEntries RPC的回复时发现leader任期是过时的，除了更新leader的任期为回复中的更新的任期，切换为follower，重置`voteFor`为-1，以及重置选举超时定时器这些常规操作外，任期过时，也说明了要追加的entry是过时的，此时应该从log中删除这条entry，以免该过时的leader再次当选后，可能会复制该entry到其他peers。同时在发送心跳时，当一致性检查失败时，接下来的重试都携带entreis，以便如果这次重试的一致性检查通过，可以进行日志追加，以使得AppendEntries RPC请求处理程序提升`commitIndex`并应用新提交的entires到状态机的操作，不是应用之前不一致的entries，而是追加的leader的entries。但这还是无法避免一些情况下仍出错，比如Part 2B的测试函数`TestBackup2B()`的情况，如下图所示：    
 ![TestBackup2B()出错](figures/心跳根据nextIndex携带entries.png)     
 修改后的`broadcastHeartbeat`实现如下：  
@@ -481,7 +494,7 @@ func (rf *Raft) broadcastHeartbeat() {
                 // Todo:概念上将心跳不携带entries，这指的是当nextIndex为log的尾后位置时的一般情况。
                 // 但是如果nextIndex小于log的尾后位置，这是心跳必须携带entries，因为这次心跳可能就会
                 // 通过一致性检查，并可能提升commitIndex，这时会给applyCond条件变量发信号以提交
-                // [lastApplied, commitIndex]之间的entries。如果此次心跳没有携带entries，则不会有
+                // [lastApplied+1, commitIndex]之间的entries。如果此次心跳没有携带entries，则不会有
                 // 日志追加，所以提交的可能是和leader不一致的过时的entries，这就出现了严重错误。所以
                 // 这种情况下心跳要携带entries。
                 entries := rf.log[prevLogIndex+1:]
@@ -588,12 +601,12 @@ func (rf *Raft) broadcastHeartbeat() {
 }
 ```
 
-## 4. 新增的长期运行的(long-runing)的应用日志条目goroutine  
+## 4. 新增的长期运行的(long-running)的应用日志条目goroutine  
 一旦更新了`commitIndex`，需要一种机制将新提交的entry封装为`ApplyMsg`消息并发送到传递给`Make()`函数的参数`applyCh`channel中。    
 正如[Raft Structrue Advice](https://pdos.csail.mit.edu/6.824/labs/raft-structure.txt)关于应用提交的日志条目的建议：     
 > 你会想有一个单独的(separate)长期运行的goroutine来按顺序(in order)发送已提交的(committed)日志条目到`applyCh`。它必须是单独的(separate)，因为在`applyCh`上发送消息可能阻塞(block)；并且它也必须是单个的goroutine，因为否则可能很难确保你可以按照日志顺序(in log order)发送日志条目。提升(advances)`commitIndex`的代码需要踢(kick)该应用goroutine(the apply goroutine)；使用条件变量(condition variable)(Go's sync.Cond)做这个可能是最简单的。   
     
-参照之前[选举超时(心跳超时)检测electionTimeoutTick的实现](../Part%202A/readme.md#12-时间驱动的time-driven长期运行的long-running的goroutine)，我们自然想到可以将该通知机制作为另一个长期运行的goroutine，它循环检测`commitIndex`是否大于`lastApplied`，如果满足，则逐个将`[lastApplied+1, commitIndex]`之间的entry封装为`ApplyMsg`发送到`applyCh`，如果不满足，则休眠等待条件变量`applyCond`而每当leader或其他follower的`commitIndex`更新后，就给`applyCond`发信号。     
+参照之前[选举超时(心跳超时)检测electionTimeoutTick的实现](../Part%202A/readme.md#12-时间驱动的time-driven长期运行的long-running的goroutine)，我们自然想到可以将该通知机制作为另一个长期运行的goroutine，它循环检测`commitIndex`是否大于`lastApplied`，如果满足，则逐个将`[lastApplied+1, commitIndex]`之间的entry封装为`ApplyMsg`发送到`applyCh`，如果不满足，则休眠等待条件变量`applyCond`。而每当leader或其他follower的`commitIndex`更新后，就给`applyCond`发信号。     
 `applyEntries`goroutine的代码实现如下：     
 ```go
 // 按顺序(in order)发送已提交的(committed)日志条目到applyCh的goroutine。
