@@ -26,7 +26,7 @@
 ![加速的日志回溯优化](figures/加速的日志回溯优化.png)       
 如图所示，灰色部分表示未知任期的entries。   
 1. `reply.conflictTerm = log[reply.conflictFirstIndex].Term`   
-如(a)所示，这时步骤1可以确定存在具有`conflictTerm`的条目，步骤2从`reply.conflictFirstIndex`处往前搜索即可。     
+如(a)所示，这时步骤1可以确定存在具有`conflictTerm`的条目，步骤2从`reply.conflictFirstIndex`处向前搜索，直到抵达`nextIndex`之前。     
 2. `reply.conflictTerm < log[reply.conflictFristIndex].Term`    
 如(b)所示，这时步骤1可能存在具有`conflictTerm`的条目，如果存在，则发现点即步骤2的搜索结果，即任期为`conflictTerm`的最后一个entry。      
 3. `reply.conflictTerm > log[reply.conflictFirstIndex].Term`    
