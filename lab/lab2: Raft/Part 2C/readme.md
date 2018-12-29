@@ -338,11 +338,11 @@ func (rf *Raft) broadcastAppendEntries(index int, term int, commitIndex int, nRe
 ```
 
 ## 3. 收到AppendEntries RPC后不能重置`voteFor`       
-在Figure 8(unreliable)这个测试点，我的实现有时会出现某个peer应用的命令和leader不一样，也就是说出现了违背状态机安全属性的致命错误！这个问题偶然才会出现，并且由于输出的log过长(大部分三四万行)，因此很难排查，最终经过痛苦的log排错，我发现问题出在在接收到AppendEntries RPC后，重置了`voteFor`，导致一个任期内有两个leader被选出，最终导致一致性检查在该出通过，但是对于该entry，虽然任期相同，但是含有和leader不同的命令，应用该entry到状态机，违背了状态机安全属性。      
+在Figure 8(unreliable)这个测试点，我的实现有时会出现某个peer应用的命令和leader不一样，也就是说出现了违背状态机安全属性的致命错误！这个问题偶然才会出现，并且由于输出的log过长(大部分三四万行)，因此很难排查，最终经过痛苦的log排错，我发现问题出在在接收到AppendEntries RPC后，重置了`voteFor`，导致一个任期内有两个leader被选出，最终导致一致性检查在该处通过，但是对于该entry，虽然任期相同，但是含有和leader不同的命令，应用该entry到状态机，违背了状态机安全属性。      
 具体情景如下：      
 ![figure 8(unreliable)-1](./figures/figure8(unreliable)-1.png)    
 ![figure 8(unreliable)-2](./figures/figure8(unreliable)-2.png)    
 如(b)所示，`term 14`内s4为leader，接收客户端命令c1，复制到自己的log中，索引值为13；接着，s4 crash，s0恢复，s0超时发起选举。由于s0重启后的任期为crash前的任期，即`term 13`，所以s0变为candidate，其任期为14，并获得s1，s2以及自身的投票，赢得选举，成为继s4后`term 14`内的第二个leader。     
 如(c)所示，s0成为leader后，接收客户端命令c2，将该命令复制到自己、s1、s2的log中的`index = 13`处，其任期也为14，但与s4的`index = 13`的entry，任期相同，含有不同的命令。   
-如(f)所示，s4恢复，并在`index = 13`处通过一致性检查，由于与leader s1此处具有相同的任期14，但两者包含的命令不同，然后s4应用此处的entry到自己的状态机，导致应用的命令与leader在此处应用的命令不同，违背了状态机安全属性。     
-究其原因，在`term = 14`，s4 crash，s0恢复并变为任期为14的candidate，发起选举时，任期为14的s1和s2不能再给任期为14的s0授予投票，**因为一个term至多只能有一个leader被选出**，上面这种情况显然违背了Raft算法对于任期的定义。而此时s1和s2能再次为s0投票，是因为s1和s2作为follower，在收到任期为14的leader s4的AppendEntries RPC时，重置了自己的`voteFor`。显然，在收到并通过AppendEntries RPC时，不同重置`voteFor`，`voteFor`只能在发现自己的任期过时的情况下，才重置。      
+如(f)所示，s4恢复，并在`index = 13`处通过一致性检查，由于与leader s1在此处具有相同的任期14，但两者包含的命令不同，然后s4应用此处的entry应用到自己的状态机，导致应用的命令与leader在此处应用的命令不同，违背了状态机安全属性。     
+究其原因，在`term = 14`，s4 crash，s0恢复并变为任期为14的candidate，发起选举时，任期为14的s1和s2不能再给任期为14的s0授予投票，**因为一个term至多只能有一个leader被选出**，上面这种情况显然违背了Raft算法对于任期的定义。而此时s1和s2能再次为s0投票，是因为s1和s2作为follower，在收到任期为14的leader s4的AppendEntries RPC时，重置了自己的`voteFor`。显然，在收到并通过AppendEntries RPC时，不同重置`voteFor`，**`voteFor`只能在发现自己的任期过时的情况下才重置**。    
