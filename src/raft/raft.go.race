@@ -223,6 +223,7 @@ type AppendEntriesReply struct {
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
+	defer rf.mu.Unlock()
 
 	// Reply false if term < CurrentTerm, otherwise continue a "consistency check"
 	if rf.CurrentTerm <= args.Term {
@@ -282,13 +283,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			// 2. 如果存在冲突的条目，再进行日志复制
 			if isMatch == false {
 				// 2.1. 进行日志复制，并更新commitIndex
-				// 注意，这里没有直接使用rf.Log = append(rf.Log[:nextIndex], args.Entries...)，
-				// 而是先申请和args.Entries大小相同的切片，然后对其进行复制，这么做是因为前一种做法
-				// 在使用-race进行测试时，出现了竞争条件，报错说这里对args进行了写操作，猜测可能是因为
-				// args.Entries...的省略号相当于把切片包含的所有元素打散后传入，这里可能涉及到写操作？
-				entries := make([]LogEntry, len(args.Entries))
-				copy(entries, args.Entries)
-				rf.Log = append(rf.Log[:nextIndex], entries...) // [0, nextIndex) + entries
+				rf.Log = append(rf.Log[:nextIndex], args.Entries...) // [0, nextIndex) + entries
 			}
 
 			DPrintf("[AppendEntries]: Id %d Term %d State %s\t||\tcommitIndex %d while leaderCommit %d" +
@@ -331,7 +326,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 
 			reply.Term = rf.CurrentTerm
 			reply.Success = true
-			rf.mu.Unlock()
 			return
 
 		} else {
@@ -382,7 +376,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 
 	reply.Term = rf.CurrentTerm
 	reply.Success = false
-	rf.mu.Unlock()
 }
 
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
@@ -667,7 +660,7 @@ func (rf *Raft) broadcastAppendEntries(index int, term int, commitIndex int, nRe
 				LeaderCommit:commitIndex,
 			}
 			DPrintf("[%s]: Id %d Term %d State %s\t||\tissue AppendEntries RPC for index %d" +
-				" to peer %d with commitIndex %d nextIndex %d\n", name, rf.me, rf.CurrentTerm, state2name(rf.state), index, i, commitIndex, nextIndex)
+				" to peer %d with nextIndex %d\n", name, rf.me, rf.CurrentTerm, state2name(rf.state), index, i, nextIndex)
 			rf.mu.Unlock()
 			var reply AppendEntriesReply
 
@@ -827,9 +820,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		rf.mu.Unlock()
 
 		// 2. 给其他peers并行发送AppendEntries RPC以复制该entry
-		rf.mu.Lock()
 		go rf.broadcastAppendEntries(index, rf.CurrentTerm, rf.commitIndex, nReplica, "Start")
-		rf.mu.Unlock()
 		//go func(nReplica *int, index int, commitIndex int, term int) {
 		//	var wg sync.WaitGroup
 		//	majority := len(rf.peers)/2 + 1
@@ -1218,11 +1209,9 @@ func (rf *Raft) broadcastHeartbeat() {
 	rf.latestIssueTime = time.Now().UnixNano()
 	rf.mu.Unlock()
 
-	rf.mu.Lock()
 	index := len(rf.Log)-1
 	nReplica := 1
 	go rf.broadcastAppendEntries(index, rf.CurrentTerm, rf.commitIndex, nReplica, "Broadcast")
-	rf.mu.Unlock()
 	//go func(term int, commitIndex int, lenOfLog int) {
 	//	var wg sync.WaitGroup
 	//
@@ -1608,9 +1597,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	go rf.applyEntries()
 
 	// initialize from state persisted before a crash
-	rf.mu.Lock()
 	rf.readPersist(persister.ReadRaftState())
-	rf.mu.Unlock()
 
 
 	return rf
