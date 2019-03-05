@@ -8,5 +8,5 @@
     - [x] Part 2B: [Log Replication](lab/lab2:%20Raft/Part%202B/readme.md)
     - [x] Part 2C: [Persistence](lab/lab2:%20Raft/Part%202C/readme.md)      
 - [x] Lab3: KVServer        
-    - [x] Part 3A: [Key/Value service without log compaction](lab/lab3:%20KVServer/Part3%20A/readme.md)     
+    - [x] Part 3A: [Key/Value service without log compaction](lab/lab3:%20KVServer/Part%203A/readme.md)     
     
