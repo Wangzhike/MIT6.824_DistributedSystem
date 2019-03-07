@@ -7,6 +7,12 @@
 > 你的每个key/value服务器("kvservers")都将有一个关联的(associated)Raft对等点(peer)。Clerks将`Put()`，`Append()`和`Get()`RPCs发送到其关联的Raft是领导者的kvserver。kvserver的代码将`Put/Append/Get`操作提交给Raft，以便Raft日志保存(holds)一个`Put/Append/Get`操作的序列。**所有的(All of)kvserver**都按顺序(in order)从Raft日志中执行操作，将这些操作应用到它们的key/value数据库(databases)；目的是让这些服务器维护key/value数据库的相同(identical)副本(replicas)。     
 Clerk有时不知道哪个kvserver是Raft的领导者。如果Clerk将一个RPC发送到错误的kvserver，或者它无法到达kvserver，Clerk应该通过发送到一个不同的kvserver来重试。如果key/value服务器将操作提交到它的Raft日志(并因此将该操作应用到key/value状态机)，则领导者通过响应其RPC将结果报告给Clerk。如果操作未能提交(例如，如果领导者被替换)，服务器报告一个错误，并且Clerk用一个不同的服务器重试。       
 
+- [1. KVServers的内部驱动——执行客户端已提交的命令的应用循环](#1-kvservers的内部驱动执行客户端已提交的命令的应用循环)        
+    - [1.1 applyLoop](#11-applyloop)        
+    - [1.2 leader中途被替换](#12-leader中途被替换)      
+- [2. 客户端请求重复检测](#2-客户端请求重复检测)        
+- [3. 客户端超时重试](#3-客户端超时重试)        
+
 ## 1. KVServers的内部驱动——执行客户端已提交的命令的应用循环     
 ### 1.1 applyLoop       
 KVServer的数据流程如下图所示：客户端调用`Clerk.Call(Put/Append/Get)`方法发起请求，KVServer的`RPC handler`接受请求，调用`Start()`将Clerk操作作为一个Op(Operation)命令插入到Raft日志中。在调用`Start()`之后，kvserver将需要等待Raft完成一致。Op所在的log entry被提交后，由`applyEntries goroutine`将Op转换为applyMsg写入到`applyCh channel`中。`applyLoop goroutine`负责从`applyCh`中逐个取出`applyMsg`，执行其包含的Op命令，并以`entry`所在的`index`作为索引找到对应的`notifyCh channel`，通过关闭`notifyCh`，通知等待的RPC handler向客户端返回执行结果。正如[Raft学生指南的"在Raft之上的应用"](https://thesquareplanet.com/blog/students-guide-to-raft/#applications-on-top-of-raft)一节所述：      
@@ -45,7 +51,7 @@ KVServer的数据流程如下图所示：客户端调用`Clerk.Call(Put/Append/G
 这里面有一个重要的隐含条件：单个客户端的请求是顺序的，也就是说每个客户端都是在上一个请求返回之后，再执行下一个请求的，同一个客户端的请求都是顺序的，不存在并发。正如[Lab 3：容错的Key/Value服务的“Part 3A：没有日志压缩的Key/Value服务”](https://pdos.csail.mit.edu/6.824/labs/lab-kvraft.html)中的提示所述：       
 > 可以假设一个客户端一次(at a time)将只对Clerk做一次调用(make only one call into a clerk)。     
 
-我最开始的重复检测方法没有考虑到这个隐含条件，使用的是`map[id][seqNum]`这样的二维map作为重复表，没有利用同一个客户端的请求是顺序的，没有并发这个特定。这个方案中，对于新请求将其加入到map中并标记为false，当其执行完毕后标记为true。但这里面存在一个何时将其删除的问题，正如[Lab 3：容错的Key/Value服务的"Part 3A：没有日志压缩的Key/Value服务"](https://pdos.csail.mit.edu/6.824/labs/lab-kvraft.html)所述：       
+我最开始的重复检测方法没有考虑到这个隐含条件，使用的是`map[id][seqNum]`这样的二维map作为重复表，没有利用同一个客户端的请求是顺序的，没有并发这个特定。这个方案中，对于新请求将其加入到map中并标记为false，当其执行完毕后标记为true。但**这里面存在一个何时将其删除的问题**，正如[Lab 3：容错的Key/Value服务的"Part 3A：没有日志压缩的Key/Value服务"](https://pdos.csail.mit.edu/6.824/labs/lab-kvraft.html)所述：       
 > 你的重复检测方案应该快速释放服务器内存，例如通过让每个RPC暗示(imply)客户端已经看到了之前的PRC的回复。     
 
 基于此，在每个RPC请求中会携带客户端上次已经得到回复的请求的序列号`lastAckNum`，服务再执行新的请求时，根据`lastAckNum`及时从二维的去重map中删除已经确认的id.seq对应的信息，以释放服务器内存。        
