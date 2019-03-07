@@ -45,6 +45,10 @@ KVServer的数据流程如下图所示：客户端调用`Clerk.Call(Put/Append/G
 这里面有一个重要的隐含条件：单个客户端的请求是顺序的，也就是说每个客户端都是在上一个请求返回之后，再执行下一个请求的，同一个客户端的请求都是顺序的，不存在并发。正如[Lab 3：容错的Key/Value服务的“Part 3A：没有日志压缩的Key/Value服务”](https://pdos.csail.mit.edu/6.824/labs/lab-kvraft.html)中的提示所述：       
 > 可以假设一个客户端一次(at a time)将只对Clerk做一次调用(make only one call into a clerk)。     
 
+我最开始的重复检测方法没有考虑到这个隐含条件，使用的是`map[id][seqNum]`这样的二维map作为重复表，没有利用同一个客户端的请求是顺序的，没有并发这个特定。这个方案中，对于新请求将其加入到map中并标记为false，当其执行完毕后标记为true。但这里面存在一个何时将其删除的问题，正如[Lab 3：容错的Key/Value服务的"Part 3A：没有日志压缩的Key/Value服务"](https://pdos.csail.mit.edu/6.824/labs/lab-kvraft.html)所述：       
+> 你的重复检测方案应该快速释放服务器内存，例如通过让每个RPC暗示(imply)客户端已经看到了之前的PRC的回复。     
+
+基于此，在每个RPC请求中会携带客户端上次已经得到回复的请求的序列号`lastAckNum`，服务再执行新的请求时，根据`lastAckNum`及时从二维的去重map中删除已经确认的id.seq对应的信息，以释放服务器内存。        
 总结一下，为了去重处理，正如[Raft学生指南的“重复检测”](https://thesquareplanet.com/blog/students-guide-to-raft/#duplicate-detection)一节所说的：        
 > 对于每个客户端请求，你需要某种唯一的标识符……有许多方法可以分配(assigning)这样的标识符。一种简单并且相当有效的方法是给每个客户端一个唯一的标识符，然后让它们用一个单调(monotonically)递增的(increasing)序列号(sequence number)标记(tag)每个请求。如果一个客户端重新发送一个请求，则它重用相同的序列号。        
 
@@ -55,3 +59,12 @@ KVServer的数据流程如下图所示：客户端调用`Clerk.Call(Put/Append/G
 2. `applyLoop goroutine`        
     applyLoop这里再进行一次重复检测，是为了应对这种情况：leader已经提交并执行了Op但在将结果返回给客户端之前崩溃了。客户端超时并重试，造成Raft log中出现两次该Op的entry。这样，重复检测识别到该Op已经执行过了，直接用上次执行的值返回。对于新的Op，则执行Op并更新去重map中该client ID对应的table entry，用该Op的seq和执行结果更新table entry。       
 # 3. 客户端超时重试     
+客户端需要重试重试机制，这时因为：我们的服务完全是依靠`applyCh`上出现的`applyMsg`驱动的，如果某peer作为original leader接收了客户端的请求，但在将请求提交之前失去了领导地位，那么该请求就不会出现在applyCh上，接收该请求的RPC handler一直处于等待状态。又因为线性一致性语义假设一个客户端一次只对Clerk进行一次调用，也就是说本次请求没有得到响应前，不会发起新的请求，这就出现了死锁：kvserver等待客户端发起新的请求，其被提交后出现在applyCh上，以便可以唤醒等待的RPC handler；而RPC handler处于等待状态，无法回复客户端请求，本次客户端请求没有得到响应，无法发起新的请求，整个服务陷入死锁。解决方案有两种：      
+1. RPC handler本身加入检测leader是否被替换的功能，即我们之前实现的`detectDeposed goroutine`，其周期性地调用`rf.GetState()`，判断是否不再是leader或者任期发生变化，从而检测leader是否被替换。        
+2. 客户端请求加入超时重试机制，超时后主动进行重试。     
+
+发生客户端超时重试时，上次的客户端请求被认为是失败的，再次发起重试。        
+实现客户端超时重试需要两个步骤：        
+1. 将目前Clerk同步的RPC调用通过goroutine改为异步，通过一个`replyCh`可以得到RPC调用的执行结果。      
+2. 创建一个类似于`detectDeposed goroutine`的超时检测`requestTimeoutTick goroutine`，周期性检测请求时间是否超时，如果是通过`timeoutCh`通知等待的RPC handler。        
+RPC handler同时监听`replyCh`和`timeoutCh`两个事件，如果得到kvserver的请求执行结果则成功返回到客户端；如果执行出错或者超时，则进行重试。     
