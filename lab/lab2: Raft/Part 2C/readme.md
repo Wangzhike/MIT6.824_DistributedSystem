@@ -92,7 +92,7 @@ func (rf *Raft) getNextIndex(reply AppendEntriesReply, nextIndex int) int {
 在[Part 2B: Log Replication的1.2 nextIndex的理解](../Part%202B/readme.md/#12-nextindex的理解)，我们曾指出：  
 > 对于`broadcastHeartbeat()`而言，由于心跳是周期性的常规行为，所以peer:i的`nextIndex`应该取自leader的`rf.nextIndex[i]`。而对于`Start()`来说，由于将新命令追加到了log，所以对于其他所有peers来说，其对应的`nextIndex`都应该更新为当前的log的尾后位置，即`index+1`。      
 
-这里存在一个问题：对于`Start()`而言，客户端新提交的命令被追加到leader的本地log后，要发送AppendEntries RPC以复制该entry到其他所有peers，如果此时将`nextIndex`设置为`index+1`，那么这次的一致性检查一定是失败的，因为当前除了leader的log具有该entry外，其他所有peers的log都还没有该entry。然后就等着递减`nextIndex`，直到达到某个点，peer:i与leader的日志达到一致，所以接受新命令后就设置`nextIndex = index + 1`，显然存在问题。而如果直接和心跳一样，对于peer:i直接沿用当前的`rf.nextIndex[i]`，也不会存在问题，反而减少了原来方案不必要的一致性检查失败的次数。     
+这里存在一个问题：对于`Start()`而言，客户端新提交的命令被追加到leader的本地log后，要发送AppendEntries RPC以复制该entry到其他所有peers，如果此时将`nextIndex`设置为`index+1`，那么这次的一致性检查一定是失败的，因为当前除了leader的log具有该entry外，其他所有peers的log都还没有该entry。然后就等着递减`nextIndex`，直到达到某个点，peer:i与leader的日志达到一致，所以**接受新命令后就设置`nextIndex = index + 1`，会导致额外的没有必要的一致性检查失败与重试，显然存在问题**。而如果直接和心跳一样，对于peer:i直接沿用当前的`rf.nextIndex[i]`，也不会存在问题，反而减少了原来方案不必要的一致性检查失败的次数。     
 在`broadcastHeartbeat()`某个版本的实现中，我模仿`Start()`的并发处理，在为peer:i发送RPC的gorotuine中，我将`nextIndex`作为参数传递给该goroutine，当一致性检查失败后，递减该参数的值，而不是leader为该peer保留的`nextIndex`的值，即`rf.nextIndex[i]`，只有当最终收到该peer的肯定答复后，才更新`rf.nextIndex[i]`的值。这种做法存在问题：发送心跳时，应该直接采用leader当前的nextIndex，而不采用创建goroutine时的nextIndex。这是因为发送心跳可能因为一致性检查而失败，这时需要递减nextIndex以重试，此时被递减后的nextIndex应该立即反馈到leader为该peer保存的nextIndex上。因为在Part 2C的Figure 8(unreliable)测试中，我发现本次广播心跳时，因为peer:i和leader的差距太大，而导致一致性检查在整个心跳发送期间都没有通过。接着下一次心跳到来，如果没有在一致性检查失败后实时更新leader为peer:i保存的`rf.nextIndex[i]`，那么这次的心跳仍会使用和前一次一直是失败的心跳初始时相同的nextIndex，这样会明显减少peer:i与leader日志达成一致的速度，从而导致该测试点失败。该版本代码的整体结构如下：     
 ```go
 func (rf *Raft) broadcastHeartbeat() {

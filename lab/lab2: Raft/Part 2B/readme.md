@@ -35,7 +35,7 @@
 因为是为每个peer创建一个goroutine发送RPC并进行RPC回复的处理，根据回复实时统计得到肯定回复的数量。可能出现在给其中一个peer发送RPC时，因为该peer的任期比candiata或leader更高，它拒绝了candidate或leder的RPC请求，candidate或leader被拒绝后，切换到`Follower`状态。而与此同时，或者在此之后，该过时的candidaet或leader(已经切换到follwer)，收到了其他peers的大多数的肯定回复，如果这时不对candidate或leader的状态加以判断，那么该过时的candidate或leader因为满足了多数者条件，采取进一步的动作(对于过时的candidate是变为leader，对于过时的leader来说是提升`commitIndex`)，这显然是错误的！所以必须在达到多数者条件时检查下是否仍处于指定状态，如果是，才能进一步执行相关动作。   
 ## 1.4 当entry被提交后发送一次心跳以通知其他peers更新`commitIndex`      
 在实现Part 2B的过程中，我发现在某些测试点，明明所有的peers的log都已经和leader的完全一致，但是就是无法通过测试点，查看原因便发现是因为尽管leader在收到大多数AppendEntries RPC的肯定答复后，将已提交的entries应用到了状态机，但有的peer在收到并肯定leader发来的AppendEntries RPC时，由于此时该RPC在发送时还没有得到大多数peers的肯定，所以其`leaderCommit`参数位于该entry之前，而后当该entry被leader标记为已提交并应该到自己的状态机后，由于没有发送心跳也没有再次发送AppendEntries RPC，所以该peer始终不知道这条entry已经被提交了，尽管这条entry已经被复制到了该peer的log中，它无法应用该entry到自己的状态机，从而无法通过测试点。   
-由此可见，**必须要得有一种沟通机制来通知其他peers更新`commitIndex`**，我的做法是~~在检测到所有的peers已经同意了某条entry后，就发送一次心跳，以通知所有的peers应用该entry到自己的状态机~~在检测到该entry被复制到大多数的peers后，即可以将该entry标记为已提交的时，也紧接着发送一次心跳，已通知其他所有的peers更新`commitIndex`，以应用该entry到自己的状态机。而对于还没有复制该entry的peer而言，也无需担心这次心跳会出现问题，因为心跳也会根据`nextIndex`的值携带entries，所以对该peer而言，此时的心跳也携带了该entry，如果心跳先于本次`Start()`调用的AppendEntries RPC到达，则也会进行一致性检查，通过后也会先发生日志复制，然后更新`commitIndex`，这时应用的新条目已经是leader的这条entry了。          
+由此可见，**必须要得有一种沟通机制来通知其他peers更新`commitIndex`**，我的做法是~~在检测到所有的peers已经同意了某条entry后，就发送一次心跳，以通知所有的peers应用该entry到自己的状态机~~在检测到该entry被复制到大多数的peers后(保证为该entry为当前任期)，即可以将该entry标记为已提交的时，也紧接着发送一次心跳，以通知其他所有的peers更新`commitIndex`，以应用该entry到自己的状态机。而对于还没有复制该entry的peer而言，也无需担心这次心跳会出现问题，因为心跳也会根据`nextIndex`的值携带entries，所以对该peer而言，此时的心跳也携带了该entry，如果心跳先于本次`Start()`调用的AppendEntries RPC到达，则也会进行一致性检查，通过后也会先发生日志复制，然后更新`commitIndex`，这时应用的新条目已经是leader的这条entry了。          
 `Start()`的代码实现如下：   
 ```go
 //
