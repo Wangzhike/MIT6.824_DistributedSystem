@@ -72,5 +72,5 @@ KVServer的数据流程如下图所示：客户端调用`Clerk.Call(Put/Append/G
 发生客户端超时重试时，上次的客户端请求被认为是失败的，再次发起重试。        
 实现客户端超时重试需要两个步骤：        
 1. 将目前Clerk同步的RPC调用通过goroutine改为异步，通过一个`replyCh`可以得到RPC调用的执行结果。      
-2. 创建一个类似于`detectDeposed goroutine`的超时检测`requestTimeoutTick goroutine`，周期性检测请求时间是否超时，如果是通过`timeoutCh`通知等待的RPC handler。        
-RPC handler同时监听`replyCh`和`timeoutCh`两个事件，如果得到kvserver的请求执行结果则成功返回到客户端；如果执行出错或者超时，则进行重试。     
+2. 创建一个类似于`detectDeposed goroutine`的超时检测`requestTimeoutTick goroutine`，周期性检测请求时间是否超时，如果是通过`timeoutCh`通知等待的Clerk发送程序。        
+Clerk发送程序同时监听`replyCh`和`timeoutCh`两个事件，如果得到kvserver的请求执行结果则成功返回到客户端；如果执行出错或者超时，则进行重试。     
